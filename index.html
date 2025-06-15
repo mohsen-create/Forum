@@ -1,58 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Safe AI Chat</title>
-<style>
-  /* Same styles as before */
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Chat - Dark Mode</title>
+  <style>
+    /* Reset and base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background-color: #121212;
+      color: #e6e6e6;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #chat {
+      width: 100%;
+      max-width: 720px;
+      height: 90vh;
+      background: #1e1e1e;
+      display: flex;
+      flex-direction: column;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.7);
+    }
+    #messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: #444 transparent;
+    }
+    #messages::-webkit-scrollbar {
+      width: 8px;
+    }
+    #messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #messages::-webkit-scrollbar-thumb {
+      background-color: #444;
+      border-radius: 4px;
+    }
+    .message {
+      max-width: 75%;
+      margin-bottom: 16px;
+      padding: 14px 18px;
+      border-radius: 12px;
+      line-height: 1.5;
+      font-size: 16px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .user {
+      background-color: #0b5cff;
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+      border-bottom-left-radius: 12px;
+    }
+    .bot {
+      background-color: #333;
+      color: #ddd;
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 12px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    #inputArea {
+      padding: 12px 20px;
+      background-color: #282828;
+      display: flex;
+      gap: 12px;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+    #userInput {
+      flex-grow: 1;
+      padding: 14px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      background-color: #121212;
+      color: #e6e6e6;
+      outline: none;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    #userInput::placeholder {
+      color: #888;
+    }
+    #sendBtn {
+      background-color: #0b5cff;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 14px 24px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      user-select: none;
+    }
+    #sendBtn:disabled {
+      background-color: #555;
+      cursor: default;
+    }
+    #sendBtn:hover:not(:disabled) {
+      background-color: #004fcf;
+    }
+  </style>
 </head>
 <body>
-  <div id="chat">
-    <div id="messages"></div>
-    <form id="inputForm">
-      <input type="text" id="userInput" autocomplete="off" placeholder="Type your message..." required />
-      <button type="submit">Send</button>
+  <div id="chat" role="main" aria-label="AI chat interface">
+    <div id="messages" aria-live="polite" aria-relevant="additions"></div>
+    <form id="inputArea" aria-label="Send message form">
+      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" aria-label="Message input" required />
+      <button id="sendBtn" type="submit">Send</button>
     </form>
   </div>
 
   <script>
-    const messagesDiv = document.getElementById("messages");
-    const inputForm = document.getElementById("inputForm");
-    const userInput = document.getElementById("userInput");
+    const messagesDiv = document.getElementById('messages');
+    const input = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const inputForm = document.getElementById('inputArea');
 
-    function appendMessage(sender, text) {
-      const msgDiv = document.createElement("div");
-      msgDiv.classList.add("message", sender);
-      msgDiv.textContent = (sender === "user" ? "You: " : "Bot: ") + text;
+    const HF_API = "https://api-inference.huggingface.co/models/gpt2";
+
+    async function queryAI(prompt) {
+      try {
+        const response = await fetch(HF_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inputs: prompt })
+        });
+        const data = await response.json();
+        if (data && data[0] && data[0].generated_text) {
+          return data[0].generated_text.trim();
+        } else if (data.error) {
+          return "Error: " + data.error;
+        } else {
+          return "Sorry, I couldn't generate a response.";
+        }
+      } catch (e) {
+        return "Error contacting AI.";
+      }
+    }
+
+    function addMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender);
+      msgDiv.textContent = text;
       messagesDiv.appendChild(msgDiv);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    inputForm.addEventListener("submit", async (e) => {
+    inputForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const inputText = userInput.value.trim();
-      if (!inputText) return;
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage(text, 'user');
+      input.value = '';
+      sendBtn.disabled = true;
+      addMessage("...", 'bot');
 
-      appendMessage("user", inputText);
-      userInput.value = "";
-      inputForm.querySelector("button").disabled = true;
-
-      try {
-        const response = await fetch("http://localhost:3000/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ input: inputText })
-        });
-        const data = await response.json();
-        appendMessage("bot", data.reply);
-      } catch {
-        appendMessage("bot", "Error contacting server.");
-      }
-
-      inputForm.querySelector("button").disabled = false;
-      userInput.focus();
+      const botMsgDiv = messagesDiv.querySelector('.bot:last-child');
+      const reply = await queryAI(text);
+      botMsgDiv.textContent = reply;
+      sendBtn.disabled = false;
+      input.focus();
     });
   </script>
 </body>
