@@ -1,143 +1,59 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Realistic Shoe Designer</title>
-    <style>
-      html, body {
-        margin: 0;
-        overflow: hidden;
-        background: #ffffff;
-        font-family: sans-serif;
-      }
-      #ui {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: rgba(255,255,255,0.95);
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        z-index: 10;
-      }
-      #ui label {
-        display: block;
-        margin-top: 10px;
-        font-size: 14px;
-      }
-      #ui select, #ui input {
-        width: 100%;
-        padding: 5px;
-        margin-top: 5px;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="ui">
-      <label>Shoe Color</label>
-      <input type="color" id="colorPicker" value="#ffffff" />
-      <label>Type</label>
-      <select id="typePicker">
-        <option>Sneakers</option>
-        <option>Cleats</option>
-        <option>Running</option>
-      </select>
-      <label>Brand</label>
-      <select id="brandPicker">
-        <option>Nike</option>
-        <option>Adidas</option>
-        <option>Puma</option>
-        <option>New Balance</option>
-      </select>
-    </div>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Safe AI Chat</title>
+<style>
+  /* Same styles as before */
+</style>
+</head>
+<body>
+  <div id="chat">
+    <div id="messages"></div>
+    <form id="inputForm">
+      <input type="text" id="userInput" autocomplete="off" placeholder="Type your message..." required />
+      <button type="submit">Send</button>
+    </form>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
-    <script>
-      // Setup scene
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+  <script>
+    const messagesDiv = document.getElementById("messages");
+    const inputForm = document.getElementById("inputForm");
+    const userInput = document.getElementById("userInput");
 
-      // Controls
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
+    function appendMessage(sender, text) {
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender);
+      msgDiv.textContent = (sender === "user" ? "You: " : "Bot: ") + text;
+      messagesDiv.appendChild(msgDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
 
-      // Lights
-      const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(5, 10, 5);
-      scene.add(light);
-      scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    inputForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const inputText = userInput.value.trim();
+      if (!inputText) return;
 
-      // Default camera position
-      camera.position.set(0, 1.2, 3);
-      controls.update();
+      appendMessage("user", inputText);
+      userInput.value = "";
+      inputForm.querySelector("button").disabled = true;
 
-      // Shoe Group
-      const shoeGroup = new THREE.Group();
-      scene.add(shoeGroup);
-
-      // Shoe Sole
-      const sole = new THREE.Mesh(
-        new THREE.BoxGeometry(2.2, 0.2, 1),
-        new THREE.MeshStandardMaterial({ color: 0xdddddd })
-      );
-      sole.position.y = 0.1;
-      shoeGroup.add(sole);
-
-      // Shoe Upper
-      const upper = new THREE.Mesh(
-        new THREE.BoxGeometry(2.0, 0.7, 0.9),
-        new THREE.MeshStandardMaterial({ color: 0xffffff })
-      );
-      upper.position.y = 0.6;
-      shoeGroup.add(upper);
-
-      // Laces (just a small detail)
-      const laces = new THREE.Mesh(
-        new THREE.BoxGeometry(0.3, 0.05, 0.8),
-        new THREE.MeshStandardMaterial({ color: 0x999999 })
-      );
-      laces.position.y = 0.9;
-      shoeGroup.add(laces);
-
-      // Make it rotate slowly
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
+      try {
+        const response = await fetch("http://localhost:3000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ input: inputText })
+        });
+        const data = await response.json();
+        appendMessage("bot", data.reply);
+      } catch {
+        appendMessage("bot", "Error contacting server.");
       }
 
-      animate();
-
-      // Interactivity
-      document.getElementById('colorPicker').addEventListener('input', e => {
-        upper.material.color.set(e.target.value);
-      });
-
-      document.getElementById('typePicker').addEventListener('change', e => {
-        const value = e.target.value;
-        if (value === 'Cleats') {
-          sole.scale.z = 1.2;
-        } else if (value === 'Running') {
-          sole.scale.z = 1;
-        } else {
-          sole.scale.z = 0.9;
-        }
-      });
-
-      document.getElementById('brandPicker').addEventListener('change', e => {
-        const brand = e.target.value;
-        alert(`Selected brand: ${brand}`);
-      });
-
-      // Resize fix
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
-    </script>
-  </body>
+      inputForm.querySelector("button").disabled = false;
+      userInput.focus();
+    });
+  </script>
+</body>
 </html>
