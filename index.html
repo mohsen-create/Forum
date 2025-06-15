@@ -1,181 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>3D Shoe Designer</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      color: #333;
-      overflow: hidden;
-    }
-    #ui {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      background: rgba(255,255,255,0.95);
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      z-index: 10;
-      width: 220px;
-    }
-    select, input[type="color"] {
-      padding: 8px;
-      margin: 10px 0;
-      font-size: 16px;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    canvas {
-      display: block;
-    }
-    h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Advanced Shoe Customizer</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; overflow: hidden; background: #111;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #eee;
+    user-select: none;
+  }
+  #container {
+    width: 100vw; height: 100vh;
+    display: flex;
+    flex-direction: row;
+  }
+  #canvas-container {
+    flex: 1;
+    position: relative;
+  }
+  canvas {
+    display: block;
+    width: 100%; height: 100%;
+    background: #222;
+  }
+  #ui {
+    width: 320px;
+    background: #181818;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  h1 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0 0 10px;
+    color: #fff;
+  }
+  label {
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  select, input[type=color], button {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    background: #333;
+    color: #eee;
+    outline: none;
+    transition: background 0.3s ease;
+  }
+  select:hover, input[type=color]:hover, button:hover {
+    background: #555;
+  }
+  .color-group {
+    display: flex;
+    flex-direction: column;
+  }
+  .footer {
+    margin-top: auto;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #666;
+  }
+</style>
 </head>
 <body>
-
-<div id="ui">
-  <h2>Design Your Shoe</h2>
-  <label>Shoe Type</label>
-  <select id="type">
-    <option value="sneaker">Sneaker</option>
-    <option value="cleat">Cleat</option>
-    <option value="athletic">Athletic</option>
-  </select>
-
-  <label>Color</label>
-  <input type="color" id="color" value="#ffffff">
-
-  <label>Brand</label>
-  <select id="brand">
-    <option value="none">None</option>
-    <option value="nike">Nike</option>
-    <option value="adidas">Adidas</option>
-    <option value="puma">Puma</option>
-  </select>
+<div id="container">
+  <div id="canvas-container"></div>
+  <div id="ui">
+    <h1>Shoe Customizer</h1>
+    <div class="color-group">
+      <label for="shoeType">Shoe Type</label>
+      <select id="shoeType" title="Choose shoe type">
+        <option value="sneaker">Sneaker</option>
+        <option value="cleat">Cleat</option>
+        <option value="athletic">Athletic</option>
+      </select>
+    </div>
+    <div class="color-group">
+      <label for="colorUpper">Upper Color</label>
+      <input type="color" id="colorUpper" value="#ffffff" title="Change upper color"/>
+    </div>
+    <div class="color-group">
+      <label for="colorSole">Sole Color</label>
+      <input type="color" id="colorSole" value="#222222" title="Change sole color"/>
+    </div>
+    <div class="color-group">
+      <label for="colorLogo">Logo Color</label>
+      <input type="color" id="colorLogo" value="#FF0000" title="Change logo color"/>
+    </div>
+    <div class="color-group">
+      <label for="brandLogo">Brand Logo</label>
+      <select id="brandLogo" title="Choose brand logo">
+        <option value="none">None</option>
+        <option value="nike">Nike</option>
+        <option value="adidas">Adidas</option>
+        <option value="puma">Puma</option>
+      </select>
+    </div>
+    <button id="downloadBtn">Download Design Image</button>
+    <div class="footer">Built with Three.js • Realistic Shoe Demo</div>
+  </div>
 </div>
 
-<canvas id="canvas"></canvas>
-
 <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
-  const canvas = document.getElementById('canvas');
+(() => {
+  const container = document.getElementById('canvas-container');
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 1, 2.5);
+  scene.background = new THREE.Color(0x222222);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0xf4f4f4);
+  const camera = new THREE.PerspectiveCamera(45, container.clientWidth/container.clientHeight, 0.1, 1000);
+  camera.position.set(0, 1.5, 3);
 
-  const light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(3, 3, 3);
-  scene.add(light);
-  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const renderer = new THREE.WebGLRenderer({antialias: true, alpha: false});
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setClearColor(0x222222);
+  container.appendChild(renderer.domElement);
 
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.minDistance = 1.2;
+  controls.maxDistance = 6;
+  controls.target.set(0, 1, 0);
+  controls.update();
 
-  let shoeMesh;
-  const loader = new THREE.GLTFLoader();
+  // Lights
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+  hemiLight.position.set(0, 5, 0);
+  scene.add(hemiLight);
 
-  const models = {
-    sneaker: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Shoe/glTF/Shoe.gltf',
-    cleat: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
-    athletic: 'https://models.babylonjs.com/CornellBox/glTF/CornellBox.gltf'
-  };
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(3, 10, 5);
+  scene.add(dirLight);
 
-  const brandLogos = {
-    nike: 'https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg',
-    adidas: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg',
-    puma: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Puma_logo.svg'
-  };
+  // Floor
+  const floorGeo = new THREE.PlaneGeometry(10, 10);
+  const floorMat = new THREE.MeshStandardMaterial({color: 0x111111, roughness: 1, metalness: 0});
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = - Math.PI / 2;
+  floor.position.y = 0;
+  scene.add(floor);
 
-  const loaderTexture = new THREE.TextureLoader();
+  // Variables to hold shoe parts
+  let shoeGroup = new THREE.Group();
+  scene.add(shoeGroup);
 
-  let brandMesh;
+  // Simple realistic shoe model parts (approximate shapes)
+  // We'll build a simple shoe from boxes and planes to simulate upper, sole, and logo
+  // You can replace this with a glTF model if you want more realism later
 
-  function loadShoe(type) {
-    if (shoeMesh) {
-      scene.remove(shoeMesh);
-      shoeMesh.traverse(obj => {
-        if (obj.material) obj.material.dispose();
-        if (obj.geometry) obj.geometry.dispose();
-      });
+  // Upper part - main shoe body
+  const upperGeo = new THREE.BoxGeometry(1.8, 0.9, 0.6);
+  const upperMat = new THREE.MeshStandardMaterial({color: 0xffffff, roughness: 0.6, metalness: 0.2});
+  const upperMesh = new THREE.Mesh(upperGeo, upperMat);
+  upperMesh.position.set(0, 1, 0);
+  upperMesh.castShadow = true;
+
+  // Sole part - bottom of shoe
+  const soleGeo = new THREE.BoxGeometry(1.9, 0.3, 0.75);
+  const soleMat = new THREE.MeshStandardMaterial({color: 0x222222, roughness: 0.8, metalness: 0.5});
+  const soleMesh = new THREE.Mesh(soleGeo, soleMat);
+  soleMesh.position.set(0, 0.65, 0);
+
+  // Logo part - a simple plane with texture
+  const logoCanvas = document.createElement('canvas');
+  logoCanvas.width = 256;
+  logoCanvas.height = 256;
+  const logoCtx = logoCanvas.getContext('2d');
+
+  function drawLogo(brand, color) {
+    logoCtx.clearRect(0, 0, 256, 256);
+    logoCtx.fillStyle = color;
+    logoCtx.textAlign = 'center';
+    logoCtx.textBaseline = 'middle';
+    logoCtx.font = 'bold 180px Arial';
+
+    if(brand === 'nike') {
+      // simple swoosh shape approximation
+      logoCtx.beginPath();
+      logoCtx.moveTo(50, 180);
+      logoCtx.quadraticCurveTo(130, 100, 200, 40);
+      logoCtx.lineWidth = 25;
+      logoCtx.strokeStyle = color;
+      logoCtx.stroke();
+    } else if(brand === 'adidas') {
+      // 3 stripes
+      logoCtx.fillRect(60, 80, 20, 120);
+      logoCtx.fillRect(100, 80, 20, 120);
+      logoCtx.fillRect(140, 80, 20, 120);
+    } else if(brand === 'puma') {
+      // puma cat text
+      logoCtx.fillText('P', 128, 140);
     }
-
-    loader.load(models[type], gltf => {
-      shoeMesh = gltf.scene;
-      shoeMesh.scale.set(1.2, 1.2, 1.2);
-      shoeMesh.position.set(0, -0.3, 0);
-      scene.add(shoeMesh);
-      updateColor(document.getElementById('color').value);
-      updateBrand(document.getElementById('brand').value);
-    });
   }
 
-  function updateColor(hex) {
-    if (!shoeMesh) return;
-    shoeMesh.traverse(obj => {
-      if (obj.isMesh && obj.material && obj.material.color) {
-        obj.material.color.set(hex);
-      }
-    });
+  drawLogo('none', '#FF0000'); // no logo initially
+
+  const logoTex = new THREE.CanvasTexture(logoCanvas);
+  const logoMat = new THREE.MeshBasicMaterial({map: logoTex, transparent: true});
+  const logoGeo = new THREE.PlaneGeometry(0.5, 0.5);
+  const logoMesh = new THREE.Mesh(logoGeo, logoMat);
+  logoMesh.position.set(0.5, 1.05, 0.31);
+  logoMesh.rotation.y = -Math.PI / 8;
+
+  shoeGroup.add(upperMesh);
+  shoeGroup.add(soleMesh);
+  shoeGroup.add(logoMesh);
+
+  // UI references
+  const shoeTypeSelect = document.getElementById('shoeType');
+  const colorUpperInput = document.getElementById('colorUpper');
+  const colorSoleInput = document.getElementById('colorSole');
+  const colorLogoInput = document.getElementById('colorLogo');
+  const brandLogoSelect = document.getElementById('brandLogo');
+  const downloadBtn = document.getElementById('downloadBtn');
+
+  // Update colors
+  function updateColors() {
+    upperMat.color.set(colorUpperInput.value);
+    soleMat.color.set(colorSoleInput.value);
+    drawLogo(brandLogoSelect.value, colorLogoInput.value);
+    logoTex.needsUpdate = true;
   }
 
-  function updateBrand(brand) {
-    if (brandMesh) {
-      scene.remove(brandMesh);
-      brandMesh = null;
+  // Update shoe type - for this demo, change shoe shape slightly
+  function updateShoeType() {
+    const val = shoeTypeSelect.value;
+    if(val === 'sneaker') {
+      upperMesh.scale.set(1.8, 0.9, 0.6);
+      soleMesh.scale.set(1.9, 0.3, 0.75);
+    } else if(val === 'cleat') {
+      upperMesh.scale.set(1.6, 0.85, 0.65);
+      soleMesh.scale.set(2.1, 0.35, 0.8);
+    } else if(val === 'athletic') {
+      upperMesh.scale.set(1.7, 1, 0.65);
+      soleMesh.scale.set(1.8, 0.4, 0.7);
     }
-
-    if (brand === "none" || !brandLogos[brand]) return;
-
-    loaderTexture.load(brandLogos[brand], texture => {
-      const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-      const geometry = new THREE.PlaneGeometry(0.4, 0.2);
-      brandMesh = new THREE.Mesh(geometry, material);
-      brandMesh.position.set(0.45, 0.2, 0.1); // Adjust position near shoe side
-      scene.add(brandMesh);
-    });
   }
 
-  document.getElementById('type').addEventListener('change', e => {
-    loadShoe(e.target.value);
+  shoeTypeSelect.addEventListener('change', () => {
+    updateShoeType();
   });
 
-  document.getElementById('color').addEventListener('input', e => {
-    updateColor(e.target.value);
+  colorUpperInput.addEventListener('input', () => {
+    updateColors();
+  });
+  colorSoleInput.addEventListener('input', () => {
+    updateColors();
+  });
+  colorLogoInput.addEventListener('input', () => {
+    updateColors();
+  });
+  brandLogoSelect.addEventListener('change', () => {
+    updateColors();
   });
 
-  document.getElementById('brand').addEventListener('change', e => {
-    updateBrand(e.target.value);
+  downloadBtn.addEventListener('click', () => {
+    renderer.domElement.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'shoe_design.png';
+      a.click();
+    });
   });
 
-  loadShoe('sneaker');
+  updateColors();
+  updateShoeType();
 
+  window.addEventListener('resize', () => {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  // Animation loop
   function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
   }
-
   animate();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+})();
 </script>
 </body>
 </html>
