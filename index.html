@@ -1,336 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Realistic Shoe Designer - Grey Theme</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-  body, html {
-    margin: 0; padding: 0; overflow: hidden;
-    font-family: 'Poppins', sans-serif;
-    background: #ffffff; /* White background */
-    color: #333333;
-    user-select: none;
-  }
-  #container {
-    display: flex;
-    height: 100vh;
-  }
-  #canvas-container {
-    flex: 1;
-    position: relative;
-    background: #ffffff;
-  }
-  canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
-  #ui {
-    width: 360px;
-    background: #f0f0f0; /* Light grey UI background */
-    padding: 30px 25px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    border-left: 3px solid #888888; /* Grey border */
-    color: #333333;
-  }
-  h1 {
-    margin: 0 0 10px;
-    font-weight: 600;
-    font-size: 1.9rem;
-    color: #555555;
-    user-select: none;
-  }
-  label {
-    font-weight: 600;
-    margin-bottom: 6px;
-    display: block;
-    font-size: 1rem;
-    user-select: none;
-  }
-  select, input[type=color], button {
-    width: 100%;
-    padding: 12px 12px;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: 1.5px solid #bbb;
-    outline: none;
-    cursor: pointer;
-    background: #fff;
-    color: #222;
-    transition: border-color 0.3s ease;
-    font-family: 'Poppins', sans-serif;
-  }
-  select:hover, input[type=color]:hover, button:hover {
-    border-color: #666666;
-  }
-  button {
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    background-color: #888888;
-    border: none;
-    color: white;
-  }
-  button:hover {
-    background-color: #666666;
-  }
-  .footer {
-    margin-top: auto;
-    font-size: 0.8rem;
-    color: #666666;
-    text-align: center;
-    user-select: none;
-  }
-</style>
-</head>
-<body>
-<div id="container">
-  <div id="canvas-container"></div>
-  <div id="ui">
-    <h1>Shoe Designer</h1>
-    <div>
-      <label for="shoeType">Shoe Type</label>
-      <select id="shoeType" title="Choose shoe type">
-        <option value="sneaker" selected>Sneaker</option>
-        <option value="cleat">Cleat</option>
-        <option value="athletic">Athletic</option>
+<html>
+  <head>
+    <title>Realistic Shoe Designer</title>
+    <style>
+      html, body {
+        margin: 0;
+        overflow: hidden;
+        background: #ffffff;
+        font-family: sans-serif;
+      }
+      #ui {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255,255,255,0.95);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        z-index: 10;
+      }
+      #ui label {
+        display: block;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+      #ui select, #ui input {
+        width: 100%;
+        padding: 5px;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui">
+      <label>Shoe Color</label>
+      <input type="color" id="colorPicker" value="#ffffff" />
+      <label>Type</label>
+      <select id="typePicker">
+        <option>Sneakers</option>
+        <option>Cleats</option>
+        <option>Running</option>
+      </select>
+      <label>Brand</label>
+      <select id="brandPicker">
+        <option>Nike</option>
+        <option>Adidas</option>
+        <option>Puma</option>
+        <option>New Balance</option>
       </select>
     </div>
-    <div>
-      <label for="colorUpper">Upper Color</label>
-      <input type="color" id="colorUpper" value="#d0d0d0" title="Change upper color" />
-    </div>
-    <div>
-      <label for="colorSole">Sole Color</label>
-      <input type="color" id="colorSole" value="#888888" title="Change sole color" />
-    </div>
-    <div>
-      <label for="colorLogo">Logo Color</label>
-      <input type="color" id="colorLogo" value="#555555" title="Change logo color" />
-    </div>
-    <div>
-      <label for="brandLogo">Brand Logo</label>
-      <select id="brandLogo" title="Choose brand logo">
-        <option value="none" selected>None</option>
-        <option value="nike">Nike</option>
-        <option value="adidas">Adidas</option>
-        <option value="puma">Puma</option>
-      </select>
-    </div>
-    <button id="downloadBtn">Download Shoe Image</button>
-    <div class="footer">Powered by Three.js • Realistic Simple Shoe Demo</div>
-  </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.153.0/examples/js/controls/OrbitControls.js"></script>
-<script>
-(() => {
-  const container = document.getElementById('canvas-container');
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff); // White background
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+      // Setup scene
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
 
-  const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-  camera.position.set(0, 1.3, 3.7);
+      // Controls
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
 
-  const renderer = new THREE.WebGLRenderer({antialias: true, alpha: false});
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setClearColor(0xffffff, 1);
-  renderer.shadowMap.enabled = true;
-  container.appendChild(renderer.domElement);
+      // Lights
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(5, 10, 5);
+      scene.add(light);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.1;
-  controls.minDistance = 1.8;
-  controls.maxDistance = 6;
-  controls.target.set(0, 1, 0);
-  controls.update();
+      // Default camera position
+      camera.position.set(0, 1.2, 3);
+      controls.update();
 
-  // Lights for strong contrast on white bg
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-  scene.add(ambientLight);
+      // Shoe Group
+      const shoeGroup = new THREE.Group();
+      scene.add(shoeGroup);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.6);
-  directionalLight.position.set(6, 12, 8);
-  directionalLight.castShadow = true;
-  directionalLight.shadow.mapSize.width = 2048;
-  directionalLight.shadow.mapSize.height = 2048;
-  directionalLight.shadow.camera.left = -4;
-  directionalLight.shadow.camera.right = 4;
-  directionalLight.shadow.camera.top = 4;
-  directionalLight.shadow.camera.bottom = -4;
-  scene.add(directionalLight);
+      // Shoe Sole
+      const sole = new THREE.Mesh(
+        new THREE.BoxGeometry(2.2, 0.2, 1),
+        new THREE.MeshStandardMaterial({ color: 0xdddddd })
+      );
+      sole.position.y = 0.1;
+      shoeGroup.add(sole);
 
-  // Floor - subtle shadow catcher
-  const floorGeo = new THREE.PlaneGeometry(10, 10);
-  const floorMat = new THREE.ShadowMaterial({opacity: 0.18});
-  const floor = new THREE.Mesh(floorGeo, floorMat);
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = 0;
-  floor.receiveShadow = true;
-  scene.add(floor);
+      // Shoe Upper
+      const upper = new THREE.Mesh(
+        new THREE.BoxGeometry(2.0, 0.7, 0.9),
+        new THREE.MeshStandardMaterial({ color: 0xffffff })
+      );
+      upper.position.y = 0.6;
+      shoeGroup.add(upper);
 
-  // Shoe group container
-  let shoeGroup = new THREE.Group();
-  scene.add(shoeGroup);
+      // Laces (just a small detail)
+      const laces = new THREE.Mesh(
+        new THREE.BoxGeometry(0.3, 0.05, 0.8),
+        new THREE.MeshStandardMaterial({ color: 0x999999 })
+      );
+      laces.position.y = 0.9;
+      shoeGroup.add(laces);
 
-  // Shoe parts
+      // Make it rotate slowly
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
 
-  // Upper - high detail box with rounded edges via subdivision
-  const upperGeo = new THREE.BoxGeometry(1.85, 0.9, 0.65, 6, 4, 6);
-  const upperMat = new THREE.MeshPhysicalMaterial({
-    color: 0xd0d0d0,
-    roughness: 0.35,
-    metalness: 0.3,
-    clearcoat: 0.7,
-    clearcoatRoughness: 0.1,
-  });
-  const upperMesh = new THREE.Mesh(upperGeo, upperMat);
-  upperMesh.position.set(0, 1, 0);
-  upperMesh.castShadow = true;
-  upperMesh.receiveShadow = true;
+      animate();
 
-  // Sole - smooth rounded box
-  const soleGeo = new THREE.BoxGeometry(1.9, 0.35, 0.75, 6, 2, 6);
-  const soleMat = new THREE.MeshPhysicalMaterial({
-    color: 0x888888,
-    roughness: 0.6,
-    metalness: 0.4,
-  });
-  const soleMesh = new THREE.Mesh(soleGeo, soleMat);
-  soleMesh.position.set(0, 0.65, 0);
-  soleMesh.castShadow = true;
-  soleMesh.receiveShadow = true;
+      // Interactivity
+      document.getElementById('colorPicker').addEventListener('input', e => {
+        upper.material.color.set(e.target.value);
+      });
 
-  // Logo canvas texture
-  const logoCanvas = document.createElement('canvas');
-  logoCanvas.width = 256;
-  logoCanvas.height = 256;
-  const logoCtx = logoCanvas.getContext('2d');
+      document.getElementById('typePicker').addEventListener('change', e => {
+        const value = e.target.value;
+        if (value === 'Cleats') {
+          sole.scale.z = 1.2;
+        } else if (value === 'Running') {
+          sole.scale.z = 1;
+        } else {
+          sole.scale.z = 0.9;
+        }
+      });
 
-  function drawLogo(brand, color) {
-    logoCtx.clearRect(0, 0, 256, 256);
-    logoCtx.fillStyle = 'rgba(0,0,0,0)';
-    logoCtx.fillRect(0, 0, 256, 256);
-    logoCtx.strokeStyle = color;
-    logoCtx.fillStyle = color;
-    logoCtx.lineCap = 'round';
-    logoCtx.lineJoin = 'round';
-    logoCtx.lineWidth = 20;
-    logoCtx.textAlign = 'center';
-    logoCtx.textBaseline = 'middle';
+      document.getElementById('brandPicker').addEventListener('change', e => {
+        const brand = e.target.value;
+        alert(`Selected brand: ${brand}`);
+      });
 
-    if (brand === 'nike') {
-      logoCtx.beginPath();
-      logoCtx.moveTo(50, 180);
-      logoCtx.quadraticCurveTo(130, 100, 200, 40);
-      logoCtx.stroke();
-    } else if (brand === 'adidas') {
-      logoCtx.fillRect(60, 80, 20, 120);
-      logoCtx.fillRect(100, 80, 20, 120);
-      logoCtx.fillRect(140, 80, 20, 120);
-    } else if (brand === 'puma') {
-      logoCtx.font = 'bold 180px Arial';
-      logoCtx.fillText('P', 128, 140);
-    }
-  }
-
-  drawLogo('none', '#555555');
-
-  const logoTexture = new THREE.CanvasTexture(logoCanvas);
-  const logoMat = new THREE.MeshBasicMaterial({map: logoTexture, transparent: true});
-  const logoGeo = new THREE.PlaneGeometry(0.5, 0.5);
-  const logoMesh = new THREE.Mesh(logoGeo, logoMat);
-  logoMesh.position.set(0.55, 1.05, 0.33);
-  logoMesh.rotation.y = -Math.PI / 8;
-  logoMesh.renderOrder = 1;
-
-  shoeGroup.add(upperMesh);
-  shoeGroup.add(soleMesh);
-  shoeGroup.add(logoMesh);
-
-  // UI elements references
-  const shoeTypeSelect = document.getElementById('shoeType');
-  const colorUpperInput = document.getElementById('colorUpper');
-  const colorSoleInput = document.getElementById('colorSole');
-  const colorLogoInput = document.getElementById('colorLogo');
-  const brandLogoSelect = document.getElementById('brandLogo');
-  const downloadBtn = document.getElementById('downloadBtn');
-
-  function updateColors() {
-    upperMat.color.set(colorUpperInput.value);
-    soleMat.color.set(colorSoleInput.value);
-    drawLogo(brandLogoSelect.value, colorLogoInput.value);
-    logoTexture.needsUpdate = true;
-  }
-
-  function updateShoeType() {
-    const val = shoeTypeSelect.value;
-    if (val === 'sneaker') {
-      upperMesh.scale.set(1.0, 1.0, 1.0);
-      soleMesh.scale.set(1.0, 1.0, 1.0);
-    } else if (val === 'cleat') {
-      upperMesh.scale.set(0.92, 0.95, 1.05);
-      soleMesh.scale.set(1.15, 1.15, 1.1);
-    } else if (val === 'athletic') {
-      upperMesh.scale.set(0.96, 1.1, 1.0);
-      soleMesh.scale.set(0.95, 1.15, 0.93);
-    }
-  }
-
-  shoeTypeSelect.addEventListener('change', () => {
-    updateShoeType();
-  });
-
-  colorUpperInput.addEventListener('input', () => {
-    updateColors();
-  });
-
-  colorSoleInput.addEventListener('input', () => {
-    updateColors();
-  });
-
-  colorLogoInput.addEventListener('input', () => {
-    updateColors();
-  });
-
-  brandLogoSelect.addEventListener('change', () => {
-    updateColors();
-  });
-
-  downloadBtn.addEventListener('click', () => {
-    renderer.domElement.toBlob((blob) => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'shoe-design.png';
-      a.click();
-    });
-  });
-
-  // Initialize shoe state
-  updateColors();
-  updateShoeType();
-
-  window.addEventListener('resize', () => {
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-  });
-
-  // Animate and spin shoe slowly
-  function animate() {
-    requestAnimationFrame(animate);
-    shoeGroup.rotation.y += 0.006;
-    controls.update();
-    renderer.render(scene, camera);
-  }
-  animate();
-})();
-</script>
-</body>
+      // Resize fix
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
 </html>
