@@ -1,439 +1,322 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Advanced Shoe Designer - Customize Your Shoes</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
-  * {
-    box-sizing: border-box;
-  }
-  body {
-    margin: 0; padding: 0;
-    font-family: 'Poppins', sans-serif;
-    background: #f4f7fb;
-    color: #222;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  header {
-    background: linear-gradient(90deg, #3a66cc, #0f2e80);
-    color: white;
-    font-weight: 700;
-    font-size: 2rem;
-    padding: 1rem 2rem;
-    text-align: center;
-    user-select: none;
-    letter-spacing: 1.2px;
-  }
-
-  main {
-    flex: 1;
-    max-width: 1280px;
-    margin: 1.5rem auto 3rem;
-    display: flex;
-    gap: 2rem;
-    padding: 0 1rem;
-  }
-
-  /* Controls Panel */
-  .controls {
-    flex: 1;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 6px 18px rgb(0 0 0 / 0.12);
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    min-width: 320px;
-    max-width: 420px;
-  }
-
-  .controls h2 {
-    margin: 0 0 0.6rem;
-    font-weight: 700;
-    color: #2c3e80;
-    border-bottom: 3px solid #3a66cc;
-    padding-bottom: 0.3rem;
-  }
-
-  label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.4rem;
-    color: #444;
-  }
-
-  select, input[type=color], input[type=text], input[type=range], input[type=file] {
-    width: 100%;
-    padding: 0.4rem 0.7rem;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: 2px solid #bbb;
-    transition: border-color 0.3s ease;
-  }
-  select:focus, input[type=color]:focus, input[type=text]:focus, input[type=range]:focus, input[type=file]:focus {
-    outline: none;
-    border-color: #3a66cc;
-    box-shadow: 0 0 8px #3a66ccaa;
-  }
-
-  input[type=range] {
-    cursor: pointer;
-  }
-
-  .color-row {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  .color-row > div {
-    flex: 1 1 45%;
-  }
-
-  .pattern-options {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;
-  }
-  .pattern-options > button {
-    flex: 1 1 30%;
-    padding: 0.4rem;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #eee;
-    font-weight: 600;
-    color: #444;
-    transition: all 0.25s ease;
-    user-select: none;
-    text-align: center;
-  }
-  .pattern-options > button.active {
-    background: #3a66cc;
-    color: white;
-    border-color: #2353b9;
-  }
-  .pattern-options > button:hover:not(.active) {
-    background: #d6e0ff;
-  }
-
-  #logo-preview {
-    margin-top: 0.5rem;
-    max-height: 70px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    object-fit: contain;
-    display: none;
-  }
-
-  /* Buttons */
-  .btn-group {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-  button {
-    cursor: pointer;
-    user-select: none;
-    background: #3a66cc;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 700;
-    padding: 0.7rem 1.2rem;
-    font-size: 1rem;
-    flex: 1 1 45%;
-    transition: background-color 0.3s ease;
-  }
-  button:hover:not(:disabled) {
-    background: #2353b9;
-  }
-  button:disabled {
-    background: #999;
-    cursor: not-allowed;
-  }
-
-  /* Preview */
-  .preview-container {
-    flex: 1.1;
-    background: white;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgb(0 0 0 / 0.1);
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .preview-container h2 {
-    color: #2c3e80;
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-
-  #shoe-preview {
-    position: relative;
-    width: 100%;
-    max-width: 480px;
-    aspect-ratio: 1 / 0.7;
-    background: #e7ebf0;
-    border-radius: 18px;
-    box-shadow: inset 0 0 35px #bbc5d2;
-    user-select: none;
-  }
-
-  .shoe-layer {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
-  }
-
-  .shoe-layer svg {
-    width: 100%; height: 100%;
-  }
-
-  #custom-text-preview {
-    position: absolute;
-    font-weight: 700;
-    font-family: 'Poppins', sans-serif;
-    user-select: none;
-    color: black;
-    white-space: nowrap;
-    pointer-events: none;
-    text-shadow: 0 0 3px #eee;
-    transition: all 0.3s ease;
-  }
-
-  #logo-layer {
-    position: absolute;
-    object-fit: contain;
-    pointer-events: none;
-    user-select: none;
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
-    transition: all 0.3s ease;
-  }
-
-  #pattern-layer {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none;
-    mix-blend-mode: multiply;
-    opacity: 0.25;
-    transition: opacity 0.3s ease;
-  }
-
-  .slider-container {
-    margin-top: 0.4rem;
-  }
-  .slider-label {
-    font-weight: 600;
-    margin-bottom: 0.15rem;
-    color: #555;
-  }
-
-  /* Responsive */
-  @media (max-width: 950px) {
-    main {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Design Your Own Shoes</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f0f0f5;
+      display: flex;
       flex-direction: column;
-      max-width: 90vw;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: #222;
     }
+    h1 {
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #333;
+    }
+    .container {
+      display: flex;
+      gap: 40px;
+      max-width: 1100px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    /* Left side: shoe preview */
+    #shoe-preview {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      width: 500px;
+      height: 350px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: visible;
+    }
+    svg {
+      width: 400px;
+      height: 300px;
+      filter: drop-shadow(0 4px 5px rgba(0,0,0,0.1));
+    }
+
+    /* Right side: controls */
     .controls {
-      max-width: 100%;
-      margin-bottom: 2rem;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 30px;
+      width: 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
-  }
-</style>
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+      font-size: 0.95rem;
+    }
+    input[type="color"], select, input[type="text"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+    input[type="text"] {
+      cursor: text;
+    }
+    input[type="color"]:focus, select:focus, input[type="text"]:focus {
+      border-color: #5a4de1;
+      outline: none;
+    }
+    button {
+      background: #5a4de1;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #473cbc;
+    }
+
+    /* Text preview on shoe */
+    #textPreview {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 26px;
+      font-weight: 600;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+      font-family: 'Poppins', sans-serif;
+      color: #222;
+      text-shadow: 1px 1px 3px rgba(255,255,255,0.8);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+      #shoe-preview, .controls {
+        width: 90vw;
+        max-width: 500px;
+      }
+      svg {
+        width: 90vw;
+        max-width: 400px;
+        height: auto;
+      }
+    }
+  </style>
 </head>
 <body>
-<header>Advanced Shoe Designer</header>
 
-<main>
-  <section class="controls" aria-label="Shoe Customization Controls">
-    <h2>1. Select Brand & Shoe Type</h2>
-    <label for="brand-select">Brand</label>
-    <select id="brand-select" title="Select shoe brand" aria-describedby="brand-help">
-      <option value="nike">Nike</option>
-      <option value="adidas">Adidas</option>
-      <option value="puma">Puma</option>
-      <option value="converse">Converse</option>
-    </select>
-    <small id="brand-help" style="color:#666;">Pick a brand to customize its shoe styles</small>
+  <h1>Design Your Own Shoes</h1>
 
-    <label for="shoe-type-select" style="margin-top:1rem;">Shoe Type</label>
-    <select id="shoe-type-select" title="Select shoe type" aria-describedby="type-help">
-      <option value="sneaker">Sneaker</option>
-      <option value="running">Running Shoe</option>
-      <option value="high-top">High-Top Sneaker</option>
-      <option value="canvas">Canvas Shoe</option>
-      <option value="soccer">Soccer Cleat</option>
-    </select>
-    <small id="type-help" style="color:#666;">Choose the shoe shape</small>
+  <div class="container">
 
-    <h2 style="margin-top:1.7rem;">2. Customize Colors</h2>
-    <div class="color-row">
-      <div>
-        <label for="color-body">Body Color</label>
-        <input type="color" id="color-body" value="#0074D9" title="Pick body color" />
-      </div>
-      <div>
-        <label for="color-sole">Sole Color</label>
-        <input type="color" id="color-sole" value="#111111" title="Pick sole color" />
-      </div>
-      <div>
-        <label for="color-laces">Laces Color</label>
-        <input type="color" id="color-laces" value="#FFFFFF" title="Pick laces color" />
-      </div>
-      <div>
-        <label for="color-heel">Heel Color</label>
-        <input type="color" id="color-heel" value="#004080" title="Pick heel color" />
-      </div>
-      <div>
-        <label for="color-tongue">Tongue Color</label>
-        <input type="color" id="color-tongue" value="#0059b3" title="Pick tongue color" />
-      </div>
+    <!-- Shoe Preview -->
+    <div id="shoe-preview">
+      <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" aria-label="Shoe preview" role="img">
+        <!-- Sole -->
+        <path id="sole" d="M40 250 Q100 290 360 270 Q370 260 360 240 Q320 220 150 230 Q80 240 40 250" fill="#e1c699" stroke="#b68e48" stroke-width="3"/>
+        <!-- Body -->
+        <path id="body" d="M60 120 Q110 70 200 100 Q300 140 310 210 Q280 230 150 220 Q90 210 60 120" fill="#aaa" stroke="#555" stroke-width="3" />
+        <!-- Laces -->
+        <rect id="laces" x="150" y="120" width="80" height="15" rx="6" ry="6" fill="#bbb" stroke="#888" stroke-width="2"/>
+        <line x1="160" y1="130" x2="230" y2="130" stroke="#666" stroke-width="2" />
+        <line x1="160" y1="135" x2="230" y2="135" stroke="#666" stroke-width="2" />
+        <!-- Logo -->
+        <circle id="logo" cx="280" cy="170" r="20" fill="#777" stroke="#444" stroke-width="2" />
+      </svg>
+      <div id="textPreview"></div>
     </div>
 
-    <h2 style="margin-top:1.7rem;">3. Pattern Overlay</h2>
-    <div class="pattern-options" role="list" aria-label="Pattern selection">
-      <button type="button" data-pattern="none" class="active" role="listitem" aria-pressed="true" tabindex="0">None</button>
-      <button type="button" data-pattern="stripes" role="listitem" aria-pressed="false" tabindex="0">Stripes</button>
-      <button type="button" data-pattern="dots" role="listitem" aria-pressed="false" tabindex="0">Dots</button>
-      <button type="button" data-pattern="camo" role="listitem" aria-pressed="false" tabindex="0">Camo</button>
-      <button type="button" data-pattern="flames" role="listitem" aria-pressed="false" tabindex="0">Flames</button>
-      <button type="button" data-pattern="gradient" role="listitem" aria-pressed="false" tabindex="0">Gradient</button>
-    </div>
-    <div class="slider-container" style="margin-top:0.8rem;">
-      <label for="pattern-opacity" class="slider-label">Pattern Opacity</label>
-      <input type="range" id="pattern-opacity" min="0" max="1" step="0.05" value="0.25" />
-    </div>
-    <div class="slider-container" style="margin-top:0.8rem;">
-      <label for="pattern-scale" class="slider-label">Pattern Scale</label>
-      <input type="range" id="pattern-scale" min="0.1" max="3" step="0.1" value="1" />
-    </div>
+    <!-- Controls -->
+    <div class="controls" role="region" aria-label="Shoe customization controls">
+      <label for="soleColor">Sole Color</label>
+      <input type="color" id="soleColor" value="#e1c699" aria-describedby="soleDesc" />
+      <div id="soleDesc" class="sr-only">Select the color for the shoe sole</div>
 
-    <h2 style="margin-top:1.7rem;">4. Logo / Patch</h2>
-    <input type="file" id="logo-upload" accept="image/*" aria-label="Upload logo or patch" />
-    <img id="logo-preview" alt="Logo preview" />
-    <label style="margin-top: 0.6rem;">
-      <input type="checkbox" id="toggle-logo" checked /> Show Logo on Shoe
-    </label>
-    <label for="logo-position" style="margin-top:0.8rem;">Logo Position</label>
-    <select id="logo-position" title="Logo placement">
-      <option value="side">Side</option>
-      <option value="tongue">Tongue</option>
-      <option value="heel">Heel</option>
-    </select>
-    <div class="slider-container" style="margin-top:0.8rem;">
-      <label for="logo-size" class="slider-label">Logo Size (px)</label>
-      <input type="range" id="logo-size" min="20" max="150" step="1" value="60" />
+      <label for="bodyColor">Body Color</label>
+      <input type="color" id="bodyColor" value="#aaaaaa" aria-describedby="bodyDesc" />
+      <div id="bodyDesc" class="sr-only">Select the color for the shoe body</div>
+
+      <label for="lacesColor">Laces Color</label>
+      <input type="color" id="lacesColor" value="#bbbbbb" aria-describedby="lacesDesc" />
+      <div id="lacesDesc" class="sr-only">Select the color for the shoe laces</div>
+
+      <label for="logoColor">Logo Color</label>
+      <input type="color" id="logoColor" value="#777777" aria-describedby="logoDesc" />
+      <div id="logoDesc" class="sr-only">Select the color for the shoe logo</div>
+
+      <label for="shoeText">Add Text (Name, Number)</label>
+      <input type="text" id="shoeText" placeholder="Enter text to appear on shoe" maxlength="12" aria-describedby="textDesc" />
+      <div id="textDesc" class="sr-only">Add a short text label to display on the shoe</div>
+
+      <button id="resetBtn" type="button">Reset to Default</button>
+      <button id="saveBtn" type="button">Save Design as Image</button>
     </div>
 
-    <h2 style="margin-top:1.7rem;">5. Custom Text</h2>
-    <label for="custom-text-input">Text (max 12 characters)</label>
-    <input type="text" id="custom-text-input" maxlength="12" placeholder="Your name or initials" />
-    <label for="text-position-select" style="margin-top:0.6rem;">Text Position</label>
-    <select id="text-position-select" title="Text placement">
-      <option value="side">Side</option>
-      <option value="tongue">Tongue</option>
-      <option value="heel">Heel</option>
-    </select>
-    <label for="text-color" style="margin-top:0.6rem;">Text Color</label>
-    <input type="color" id="text-color" value="#000000" />
-    <div class="slider-container" style="margin-top:0.8rem;">
-      <label for="text-size" class="slider-label">Text Size (px)</label>
-      <input type="range" id="text-size" min="10" max="48" step="1" value="24" />
-    </div>
+  </div>
 
-    <div class="btn-group" style="margin-top:2rem;">
-      <button id="undo-btn" disabled title="Undo last change">Undo</button>
-      <button id="redo-btn" disabled title="Redo last undone change">Redo</button>
-      <button id="reset-btn" title="Reset all customizations">Reset</button>
-      <button id="download-btn" title="Download design as PNG">Download Design</button>
-    </div>
-  </section>
+  <script>
+    // Elements references
+    const sole = document.getElementById('sole');
+    const body = document.getElementById('body');
+    const laces = document.getElementById('laces');
+    const logo = document.getElementById('logo');
+    const textPreview = document.getElementById('textPreview');
 
-  <section class="preview-container" aria-label="Shoe Preview Area">
-    <h2>Your Shoe Preview</h2>
-    <div id="shoe-preview" aria-label="Customized shoe preview" role="img" tabindex="0" aria-live="polite" aria-atomic="true">
-      <!-- SVG Layers for shoe parts -->
-      <div class="shoe-layer" id="layer-sole"></div>
-      <div class="shoe-layer" id="layer-body"></div>
-      <div class="shoe-layer" id="layer-heel"></div>
-      <div class="shoe-layer" id="layer-tongue"></div>
-      <div class="shoe-layer" id="layer-laces"></div>
+    const soleColorInput = document.getElementById('soleColor');
+    const bodyColorInput = document.getElementById('bodyColor');
+    const lacesColorInput = document.getElementById('lacesColor');
+    const logoColorInput = document.getElementById('logoColor');
+    const shoeTextInput = document.getElementById('shoeText');
 
-      <!-- Pattern Canvas -->
-      <canvas id="pattern-layer"></canvas>
+    const resetBtn = document.getElementById('resetBtn');
+    const saveBtn = document.getElementById('saveBtn');
 
-      <!-- Logo -->
-      <img id="logo-layer" alt="Logo on shoe" />
+    // Default colors
+    const defaults = {
+      sole: '#e1c699',
+      body: '#aaaaaa',
+      laces: '#bbbbbb',
+      logo: '#777777',
+      text: ''
+    };
 
-      <!-- Custom Text -->
-      <div id="custom-text-preview" aria-label="Custom text on shoe"></div>
-    </div>
-  </section>
-</main>
+    // Update shoe colors and text
+    function updateShoe() {
+      sole.setAttribute('fill', soleColorInput.value);
+      body.setAttribute('fill', bodyColorInput.value);
+      laces.setAttribute('fill', lacesColorInput.value);
+      logo.setAttribute('fill', logoColorInput.value);
 
-<script>
-(() => {
-  // =============== STATE ===============
-  let state = {
-    brand: 'nike',
-    shoeType: 'sneaker',
-    colors: {
-      body: '#0074D9',
-      sole: '#111111',
-      laces: '#FFFFFF',
-      heel: '#004080',
-      tongue: '#0059b3'
-    },
-    pattern: 'none',
-    patternOpacity: 0.25,
-    patternScale: 1,
-    logoDataUrl: null,
-    showLogo: true,
-    logoPosition: 'side',
-    logoSize: 60,
-    customText: '',
-    textPosition: 'side',
-    textColor: '#000000',
-    textSize: 24,
-  };
+      const text = shoeTextInput.value.trim();
+      if (text) {
+        textPreview.textContent = text;
+        // Dynamically adjust color for contrast
+        // Simple check for light/dark color on body to choose text color
+        function luminance(hex) {
+          hex = hex.replace('#','');
+          let r = parseInt(hex.substr(0,2),16) / 255;
+          let g = parseInt(hex.substr(2,2),16) / 255;
+          let b = parseInt(hex.substr(4,2),16) / 255;
+          let a = [r,g,b].map(c => c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055,2.4));
+          return 0.2126*a[0] + 0.7152*a[1] + 0.0722*a[2];
+        }
+        let bodyLum = luminance(bodyColorInput.value);
+        textPreview.style.color = bodyLum < 0.5 ? '#eee' : '#222';
+      } else {
+        textPreview.textContent = '';
+      }
+    }
 
-  // Undo/Redo history stacks
-  const history = [];
-  const future = [];
+    // Reset to defaults
+    function resetDesign() {
+      soleColorInput.value = defaults.sole;
+      bodyColorInput.value = defaults.body;
+      lacesColorInput.value = defaults.laces;
+      logoColorInput.value = defaults.logo;
+      shoeTextInput.value = defaults.text;
+      updateShoe();
+    }
 
-  // DOM elements
-  const dom = {
-    brandSelect: document.getElementById('brand-select'),
-    shoeTypeSelect: document.getElementById('shoe-type-select'),
-    colorBody: document.getElementById('color-body'),
-    colorSole: document.getElementById('color-sole'),
-    colorLaces: document.getElementById('color-laces'),
-    colorHeel: document.getElementById('color-heel'),
-    colorTongue: document.getElementById('color-tongue'),
-    patternButtons: document.querySelectorAll('.pattern-options > button'),
-    patternOpacity: document.getElementById('pattern-opacity'),
-    patternScale: document.getElementById('pattern-scale'),
-    logoUpload: document.getElementById('logo-upload'),
-    logoPreview: document.getElementById('logo-preview'),
-    toggleLogo: document.getElementById('toggle-logo'),
-    logoPosition: document.getElementById('logo-position'),
-    logoSize: document.getElementById('logo-size'),
-    customTextInput: document.getElementById('custom-text-input'),
-    textPositionSelect: document.getElementById('text-position-select'),
-    textColorInput: document.getElementById('text-color'),
-    textSizeInput: document.getElementById('text-size'),
-    undoBtn: document.getElementById('undo-btn'),
-    redoBtn: document.getElementById('redo-btn'),
-    resetBtn: document.getElementById('reset-btn'),
-    downloadBtn: document.getElementById
+    // Save the shoe design as an image
+    function saveDesign() {
+      const svgElement = document.querySelector('#shoe-preview svg');
+
+      // Create a new SVG with text included (because the textPreview is HTML overlay)
+      // We'll clone SVG and add a <text> element in SVG with the same text
+      const clonedSVG = svgElement.cloneNode(true);
+
+      // Remove existing text if any
+      const existingText = clonedSVG.querySelector('text#svgTextLabel');
+      if (existingText) clonedSVG.removeChild(existingText);
+
+      if (shoeTextInput.value.trim()) {
+        const textElement = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textElement.setAttribute('id', 'svgTextLabel');
+        textElement.setAttribute('x', '200');
+        textElement.setAttribute('y', '270');
+        textElement.setAttribute('text-anchor', 'middle');
+        textElement.setAttribute('font-family', 'Poppins, sans-serif');
+        textElement.setAttribute('font-size', '26');
+        textElement.setAttribute('font-weight', '600');
+        textElement.setAttribute('fill', textPreview.style.color || '#222');
+        textElement.textContent = shoeTextInput.value.trim();
+        clonedSVG.appendChild(textElement);
+      }
+
+      // Serialize SVG
+      const serializer = new XMLSerializer();
+      const svgString = serializer.serializeToString(clonedSVG);
+
+      // Create a canvas to draw the SVG
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 300;
+      const ctx = canvas.getContext('2d');
+
+      const img = new Image();
+      const svgBlob = new Blob([svgString], {type:"image/svg+xml;charset=utf-8"});
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = function() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        // Download the image as PNG
+        const pngImg = canvas.toDataURL("image/png");
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pngImg;
+        downloadLink.download = 'my-shoe-design.png';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      };
+
+      img.onerror = () => alert("Error saving the image.");
+      img.src = url;
+    }
+
+    // Event listeners
+    soleColorInput.addEventListener('input', updateShoe);
+    bodyColorInput.addEventListener('input', updateShoe);
+    lacesColorInput.addEventListener('input', updateShoe);
+    logoColorInput.addEventListener('input', updateShoe);
+    shoeTextInput.addEventListener('input', updateShoe);
+
+    resetBtn.addEventListener('click', resetDesign);
+    saveBtn.addEventListener('click', saveDesign);
+
+    // Initialize shoe with defaults
+    resetDesign();
+  </script>
+</body>
+</html>
