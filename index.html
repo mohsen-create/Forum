@@ -1,401 +1,377 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Realistic Shoe Designer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f0f0f0;
-      margin: 0; padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 {
-      margin-bottom: 15px;
-    }
-    #designer {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      padding: 20px;
-      width: 680px;
-      max-width: 95vw;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    #shoe-area {
-      position: relative;
-      width: 480px;
-      height: 320px;
-      background: #ddd;
-      border-radius: 15px;
-      box-shadow: inset 0 0 20px #bbb;
-      overflow: hidden;
-      user-select: none;
-      cursor: grab;
-    }
-    #shoe-area img.part {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      object-fit: contain;
-      pointer-events: none;
-      transition: filter 0.3s ease;
-    }
-    #controls {
-      flex: 1 1 160px;
-      max-width: 180px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    label {
-      font-weight: 600;
-      margin-bottom: 5px;
-      display: block;
-    }
-    select, input[type="color"], input[type="file"] {
-      width: 100%;
-      padding: 7px 8px;
-      border-radius: 5px;
-      border: 1.5px solid #ccc;
-      font-size: 14px;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px;
-      border: none;
-      border-radius: 7px;
-      font-size: 16px;
-      background: #0073e6;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background: #005bb5;
-    }
-    #logo-preview {
-      width: 100px;
-      height: 50px;
-      border: 1px solid #ccc;
-      margin-top: 5px;
-      object-fit: contain;
-      border-radius: 5px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Realistic Shoe Designer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: #f7f7f7;
+    margin: 0; padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+  }
+  h1 {
+    margin-bottom: 25px;
+    color: #222;
+  }
+  #designer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    width: 720px;
+    max-width: 95vw;
+    background: white;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  #shoe-container {
+    position: relative;
+    width: 480px;
+    height: 320px;
+    background: #e0e0e0;
+    border-radius: 20px;
+    box-shadow: inset 0 0 15px #bbb;
+    overflow: visible;
+  }
+  #shoe-base, #shoe-sole, #shoe-laces, #pattern-overlay, #logo {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    transition: filter 0.3s ease;
+  }
+  #logo {
+    pointer-events: auto;
+    cursor: grab;
+    width: 130px;
+    height: 70px;
+    top: 130px;
+    left: 320px;
+    z-index: 10;
+  }
+  #controls {
+    flex: 1;
+    max-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  label {
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #333;
+  }
+  select, input[type="color"], input[type="file"] {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 15px;
+    border-radius: 7px;
+    border: 1.8px solid #ccc;
+    outline-offset: 1px;
+    transition: border-color 0.3s ease;
+  }
+  select:hover, input[type="color"]:hover, input[type="file"]:hover {
+    border-color: #0073e6;
+  }
+  button {
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    background-color: #0073e6;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 115, 230, 0.4);
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #005bb5;
+  }
+  .pattern-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pattern-toggle input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+</style>
 </head>
 <body>
 
-  <h1>Realistic Shoe Designer</h1>
-  <div id="designer">
-    <div id="shoe-area" title="Drag to move logo">
-      <!-- Shoe parts -->
-      <img id="base-shoe" class="part" src="https://i.ibb.co/W06f0Fx/sneaker-base.png" alt="Base Shoe" />
-      <img id="sole" class="part" src="https://i.ibb.co/HXPSqFf/sneaker-sole.png" alt="Sole" />
-      <img id="laces" class="part" src="https://i.ibb.co/6BCnmwK/sneaker-laces.png" alt="Laces" />
-      <img id="pattern-layer" class="part" alt="Pattern Layer" />
-      <img id="logo" class="part" alt="Logo" style="width: 120px; height: 60px; top: 130px; left: 320px; cursor: grab; position: absolute;"/>
-    </div>
+<h1>Realistic Shoe Designer</h1>
 
-    <div id="controls">
-      <label for="shoeType">Shoe Type</label>
-      <select id="shoeType">
-        <option value="sneaker">Sneakers</option>
-        <option value="cleats">Cleats</option>
-        <option value="athletic">Athletic</option>
-      </select>
-
-      <label for="brandSelect">Brand</label>
-      <select id="brandSelect">
-        <option value="nike">Nike</option>
-        <option value="adidas">Adidas</option>
-        <option value="puma">Puma</option>
-        <option value="custom">Custom</option>
-      </select>
-
-      <label for="colorUpper">Upper Color</label>
-      <input type="color" id="colorUpper" value="#ffffff" />
-
-      <label for="colorSole">Sole Color</label>
-      <input type="color" id="colorSole" value="#000000" />
-
-      <label for="colorLaces">Laces Color</label>
-      <input type="color" id="colorLaces" value="#ffffff" />
-
-      <label for="patternSelect">Pattern</label>
-      <select id="patternSelect">
-        <option value="none">None</option>
-        <option value="camo">Camouflage</option>
-        <option value="stripes">Stripes</option>
-        <option value="gradient">Gradient</option>
-        <option value="flames">Flames</option>
-      </select>
-
-      <label for="logoUpload">Upload Logo (PNG)</label>
-      <input type="file" id="logoUpload" accept="image/png" />
-
-      <button id="downloadBtn">Download Design</button>
-    </div>
+<div id="designer">
+  <div id="shoe-container" title="Drag the logo to reposition">
+    <img id="shoe-base" src="" alt="Shoe base" />
+    <img id="shoe-sole" src="" alt="Sole" />
+    <img id="shoe-laces" src="" alt="Laces" />
+    <img id="pattern-overlay" src="" alt="Pattern overlay" style="display:none; mix-blend-mode: multiply; opacity: 0.7;" />
+    <img id="logo" alt="Logo" style="display:none;" />
   </div>
 
-  <script>
-    // Image sources for shoe parts based on type
-    const shoePartsSources = {
-      sneaker: {
-        base: 'https://i.ibb.co/W06f0Fx/sneaker-base.png',
-        sole: 'https://i.ibb.co/HXPSqFf/sneaker-sole.png',
-        laces: 'https://i.ibb.co/6BCnmwK/sneaker-laces.png'
-      },
-      cleats: {
-        base: 'https://i.ibb.co/YNbc1BT/cleats-base.png',
-        sole: 'https://i.ibb.co/9tq3D46/cleats-sole.png',
-        laces: 'https://i.ibb.co/TgZHgT3/cleats-laces.png'
-      },
-      athletic: {
-        base: 'https://i.ibb.co/ncSzfjD/athletic-base.png',
-        sole: 'https://i.ibb.co/6J4MWJ1/athletic-sole.png',
-        laces: 'https://i.ibb.co/NZkCjc5/athletic-laces.png'
-      }
+  <div id="controls">
+    <label for="shoeType">Shoe Type</label>
+    <select id="shoeType">
+      <option value="sneaker">Sneaker</option>
+      <option value="cleats">Cleats</option>
+      <option value="athletic">Athletic</option>
+    </select>
+
+    <label for="colorUpper">Upper Color</label>
+    <input type="color" id="colorUpper" value="#ffffff" />
+
+    <label for="colorSole">Sole Color</label>
+    <input type="color" id="colorSole" value="#333333" />
+
+    <label for="colorLaces">Laces Color</label>
+    <input type="color" id="colorLaces" value="#ffffff" />
+
+    <label>Pattern Overlay</label>
+    <div class="pattern-toggle">
+      <input type="checkbox" id="patternCamo" />
+      <label for="patternCamo" style="font-weight: 400;">Camouflage</label>
+    </div>
+    <div class="pattern-toggle">
+      <input type="checkbox" id="patternLeather" />
+      <label for="patternLeather" style="font-weight: 400;">Leather Grain</label>
+    </div>
+    <div class="pattern-toggle">
+      <input type="checkbox" id="patternCarbon" />
+      <label for="patternCarbon" style="font-weight: 400;">Carbon Fiber</label>
+    </div>
+
+    <label for="logoUpload">Upload Logo (PNG with transparent background)</label>
+    <input type="file" id="logoUpload" accept="image/png" />
+
+    <button id="downloadBtn">Download Design</button>
+  </div>
+</div>
+
+<script>
+  // Reliable images for each shoe part by type
+  const shoeImages = {
+    sneaker: {
+      base: 'https://i.imgur.com/MN4vEzX.png',       // white sneaker base
+      sole: 'https://i.imgur.com/VxVfGtv.png',       // black sole
+      laces: 'https://i.imgur.com/j7hGQzT.png'       // white laces
+    },
+    cleats: {
+      base: 'https://i.imgur.com/GX7qN7B.png',       // cleats base
+      sole: 'https://i.imgur.com/L5vtLfq.png',       // cleats sole
+      laces: 'https://i.imgur.com/EVLfDEz.png'       // cleats laces
+    },
+    athletic: {
+      base: 'https://i.imgur.com/Kv3OnG1.png',       // athletic shoe base
+      sole: 'https://i.imgur.com/MQHXfUl.png',       // athletic sole
+      laces: 'https://i.imgur.com/24Q9jqX.png'       // athletic laces
+    }
+  };
+
+  // Pattern overlays (semi-transparent textures)
+  const patterns = {
+    camo: 'https://i.imgur.com/ly5rhYY.png',
+    leather: 'https://i.imgur.com/LntDmDc.png',
+    carbon: 'https://i.imgur.com/KnB2vJz.png'
+  };
+
+  const shoeBase = document.getElementById('shoe-base');
+  const shoeSole = document.getElementById('shoe-sole');
+  const shoeLaces = document.getElementById('shoe-laces');
+  const patternOverlay = document.getElementById('pattern-overlay');
+  const logo = document.getElementById('logo');
+
+  const shoeType = document.getElementById('shoeType');
+  const colorUpper = document.getElementById('colorUpper');
+  const colorSole = document.getElementById('colorSole');
+  const colorLaces = document.getElementById('colorLaces');
+
+  const patternCamo = document.getElementById('patternCamo');
+  const patternLeather = document.getElementById('patternLeather');
+  const patternCarbon = document.getElementById('patternCarbon');
+
+  const logoUpload = document.getElementById('logoUpload');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const shoeContainer = document.getElementById('shoe-container');
+
+  // Set shoe images for selected type
+  function setShoeImages() {
+    const type = shoeType.value;
+    shoeBase.src = shoeImages[type].base;
+    shoeSole.src = shoeImages[type].sole;
+    shoeLaces.src = shoeImages[type].laces;
+    updateColors();
+    updatePatternOverlay();
+  }
+
+  // Convert hex color to RGB
+  function hexToRgb(hex) {
+    let bigint = parseInt(hex.slice(1), 16);
+    let r = (bigint >> 16) & 255;
+    let g = (bigint >> 8) & 255;
+    let b = bigint & 255;
+    return [r, g, b];
+  }
+
+  // Apply color by CSS filters (simple tint effect)
+  function applyColor(imgElement, hexColor) {
+    // Using CSS filter approximation for tint
+    const [r,g,b] = hexToRgb(hexColor);
+    // Use drop-shadow trick for tint effect
+    imgElement.style.filter = `drop-shadow(0 0 0 rgb(${r},${g},${b}))`;
+    imgElement.style.mixBlendMode = 'multiply';
+    imgElement.style.backgroundColor = hexColor;
+  }
+
+  function updateColors() {
+    applyColor(shoeBase, colorUpper.value);
+    applyColor(shoeSole, colorSole.value);
+    applyColor(shoeLaces, colorLaces.value);
+  }
+
+  // Pattern overlay logic: only one pattern at a time, priority Camo > Leather > Carbon
+  function updatePatternOverlay() {
+    if (patternCamo.checked) {
+      patternOverlay.src = patterns.camo;
+      patternOverlay.style.display = 'block';
+    } else if (patternLeather.checked) {
+      patternOverlay.src = patterns.leather;
+      patternOverlay.style.display = 'block';
+    } else if (patternCarbon.checked) {
+      patternOverlay.src = patterns.carbon;
+      patternOverlay.style.display = 'block';
+    } else {
+      patternOverlay.src = '';
+      patternOverlay.style.display = 'none';
+    }
+  }
+
+  // Logo upload and show
+  logoUpload.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      logo.src = ev.target.result;
+      logo.style.display = 'block';
     };
+    reader.readAsDataURL(file);
+  });
 
-    // Pattern image URLs
-    const patternSources = {
-      none: '',
-      camo: 'https://i.ibb.co/d6rhpcT/camo.png',
-      stripes: 'https://i.ibb.co/QHMdswY/stripes.png',
-      gradient: 'https://i.ibb.co/qkjM2v9/gradient.png',
-      flames: 'https://i.ibb.co/XbfK98W/flames.png'
-    };
+  // Drag logo logic
+  let dragging = false;
+  let dragOffsetX, dragOffsetY;
 
-    const baseShoe = document.getElementById('base-shoe');
-    const sole = document.getElementById('sole');
-    const laces = document.getElementById('laces');
-    const patternLayer = document.getElementById('pattern-layer');
-    const logo = document.getElementById('logo');
+  logo.addEventListener('mousedown', (e) => {
+    dragging = true;
+    const rect = logo.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left;
+    dragOffsetY = e.clientY - rect.top;
+    logo.style.cursor = 'grabbing';
+  });
 
-    const shoeTypeSelect = document.getElementById('shoeType');
-    const brandSelect = document.getElementById('brandSelect');
-    const colorUpperInput = document.getElementById('colorUpper');
-    const colorSoleInput = document.getElementById('colorSole');
-    const colorLacesInput = document.getElementById('colorLaces');
-    const patternSelect = document.getElementById('patternSelect');
-    const logoUpload = document.getElementById('logoUpload');
-    const downloadBtn = document.getElementById('downloadBtn');
+  window.addEventListener('mouseup', () => {
+    dragging = false;
+    logo.style.cursor = 'grab';
+  });
 
-    // Current color values
-    let upperColor = colorUpperInput.value;
-    let soleColor = colorSoleInput.value;
-    let lacesColor = colorLacesInput.value;
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const containerRect = shoeContainer.getBoundingClientRect();
 
-    // For dragging logo
-    let isDraggingLogo = false;
-    let dragStartX, dragStartY;
-    let logoStartX, logoStartY;
+    let newLeft = e.clientX - containerRect.left - dragOffsetX;
+    let newTop = e.clientY - containerRect.top - dragOffsetY;
 
-    // Initialize shoe display
-    function updateShoeParts() {
-      const type = shoeTypeSelect.value;
-      baseShoe.src = shoePartsSources[type].base;
-      sole.src = shoePartsSources[type].sole;
-      laces.src = shoePartsSources[type].laces;
+    // Clamp to container bounds
+    const maxLeft = shoeContainer.clientWidth - logo.clientWidth;
+    const maxTop = shoeContainer.clientHeight - logo.clientHeight;
+    if (newLeft < 0) newLeft = 0;
+    if (newTop < 0) newTop = 0;
+    if (newLeft > maxLeft) newLeft = maxLeft;
+    if (newTop > maxTop) newTop = maxTop;
 
-      updateColors();
-      updatePattern();
-      updateBrandLogo();
+    logo.style.left = newLeft + 'px';
+    logo.style.top = newTop + 'px';
+  });
+
+  // Control event listeners
+  shoeType.addEventListener('change', setShoeImages);
+  colorUpper.addEventListener('input', updateColors);
+  colorSole.addEventListener('input', updateColors);
+  colorLaces.addEventListener('input', updateColors);
+
+  patternCamo.addEventListener('change', () => {
+    if (patternCamo.checked) {
+      patternLeather.checked = false;
+      patternCarbon.checked = false;
+    }
+    updatePatternOverlay();
+  });
+  patternLeather.addEventListener('change', () => {
+    if (patternLeather.checked) {
+      patternCamo.checked = false;
+      patternCarbon.checked = false;
+    }
+    updatePatternOverlay();
+  });
+  patternCarbon.addEventListener('change', () => {
+    if (patternCarbon.checked) {
+      patternCamo.checked = false;
+      patternLeather.checked = false;
+    }
+    updatePatternOverlay();
+  });
+
+  // Download the shoe design as PNG
+  downloadBtn.addEventListener('click', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = shoeContainer.clientWidth;
+    canvas.height = shoeContainer.clientHeight;
+    const ctx = canvas.getContext('2d');
+
+    function drawImageFromEl(img) {
+      if (!img.src || img.style.display === 'none') return;
+      const style = window.getComputedStyle(img);
+      let left = parseFloat(img.style.left) || 0;
+      let top = parseFloat(img.style.top) || 0;
+      ctx.filter = style.filter || 'none';
+      ctx.globalAlpha = parseFloat(style.opacity) || 1;
+      ctx.drawImage(img, left, top, img.clientWidth, img.clientHeight);
+      ctx.filter = 'none';
+      ctx.globalAlpha = 1;
     }
 
-    function hexToRgb(hex) {
-      let bigint = parseInt(hex.slice(1), 16);
-      let r = (bigint >> 16) & 255;
-      let g = (bigint >> 8) & 255;
-      let b = bigint & 255;
-      return `${r},${g},${b}`;
-    }
+    // Draw order matters
+    drawImageFromEl(shoeBase);
+    drawImageFromEl(shoeSole);
+    drawImageFromEl(shoeLaces);
+    drawImageFromEl(patternOverlay);
+    drawImageFromEl(logo);
 
-    // Apply colors via CSS filter (approximate)
-    function applyColorFilter(element, hexColor) {
-      // Simple tint using mix-blend-mode workaround
-      element.style.filter = `drop-shadow(0 0 0 rgb(${hexToRgb(hexColor)}))`;
-      element.style.mixBlendMode = 'multiply';
-      element.style.backgroundColor = hexColor;
-    }
-
-    // Better color approach: use SVG masks or canvas for perfect recolor but complex. 
-    // We'll apply CSS filters & opacity for demo purposes.
-
-    function updateColors() {
-      // Base shoe (upper) color tint by overlaying a semi-transparent colored div behind shoe base
-      baseShoe.style.filter = `brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)`;
-      baseShoe.style.backgroundColor = upperColor;
-      baseShoe.style.mixBlendMode = 'multiply';
-
-      sole.style.filter = '';
-      sole.style.backgroundColor = soleColor;
-      sole.style.mixBlendMode = 'multiply';
-
-      laces.style.filter = '';
-      laces.style.backgroundColor = lacesColor;
-      laces.style.mixBlendMode = 'multiply';
-    }
-
-    function updatePattern() {
-      const pattern = patternSelect.value;
-      if (pattern === 'none') {
-        patternLayer.src = '';
-        patternLayer.style.display = 'none';
-      } else {
-        patternLayer.src = patternSources[pattern];
-        patternLayer.style.display = 'block';
-      }
-    }
-
-    // Brand logos URLs (for demo)
-    const brandLogos = {
-      nike: 'https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg',
-      adidas: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg',
-      puma: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Puma_logo.svg',
-      custom: ''
-    };
-
-    // Show brand logo or hide
-    function updateBrandLogo() {
-      const brand = brandSelect.value;
-      if (brand !== 'custom') {
-        logo.src = brandLogos[brand];
-        logo.style.display = 'block';
-        logo.style.width = '120px';
-        logo.style.height = '60px';
-        logo.style.top = '130px';
-        logo.style.left = '320px';
-      } else {
-        if (!logo.src || logo.src === '') {
-          logo.style.display = 'none';
-        }
-      }
-    }
-
-    // Logo upload event
-    logoUpload.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        logo.src = evt.target.result;
-        logo.style.display = 'block';
-        brandSelect.value = 'custom';
-        logo.style.width = '120px';
-        logo.style.height = '60px';
-        logo.style.top = '130px';
-        logo.style.left = '320px';
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Color inputs event
-    colorUpperInput.addEventListener('input', e => {
-      upperColor = e.target.value;
-      updateColors();
-    });
-    colorSoleInput.addEventListener('input', e => {
-      soleColor = e.target.value;
-      updateColors();
-    });
-    colorLacesInput.addEventListener('input', e => {
-      lacesColor = e.target.value;
-      updateColors();
-    });
-
-    // Pattern select event
-    patternSelect.addEventListener('change', updatePattern);
-
-    // Shoe type & brand change
-    shoeTypeSelect.addEventListener('change', updateShoeParts);
-    brandSelect.addEventListener('change', updateBrandLogo);
-
-    // Logo drag functionality
-    logo.addEventListener('mousedown', e => {
-      isDraggingLogo = true;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
-      const rect = logo.getBoundingClientRect();
-      logoStartX = rect.left;
-      logoStartY = rect.top;
-      logo.style.cursor = 'grabbing';
-      e.preventDefault();
-    });
-    window.addEventListener('mouseup', e => {
-      if (isDraggingLogo) {
-        isDraggingLogo = false;
-        logo.style.cursor = 'grab';
-      }
-    });
-    window.addEventListener('mousemove', e => {
-      if (isDraggingLogo) {
-        let dx = e.clientX - dragStartX;
-        let dy = e.clientY - dragStartY;
-        let newLeft = logoStartX + dx;
-        let newTop = logoStartY + dy;
-
-        // Constrain within shoe area
-        const shoeRect = document.getElementById('shoe-area').getBoundingClientRect();
-        const logoRect = logo.getBoundingClientRect();
-
-        if (newLeft < shoeRect.left) newLeft = shoeRect.left;
-        if (newTop < shoeRect.top) newTop = shoeRect.top;
-        if (newLeft + logoRect.width > shoeRect.right) newLeft = shoeRect.right - logoRect.width;
-        if (newTop + logoRect.height > shoeRect.bottom) newTop = shoeRect.bottom - logoRect.height;
-
-        // Update position relative to shoe-area
-        logo.style.left = (newLeft - shoeRect.left) + 'px';
-        logo.style.top = (newTop - shoeRect.top) + 'px';
-      }
-    });
-
-    // Download functionality
-    downloadBtn.addEventListener('click', () => {
-      const shoeArea = document.getElementById('shoe-area');
-      // Create a temporary canvas
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = shoeArea.clientWidth;
-      tempCanvas.height = shoeArea.clientHeight;
-      const tempCtx = tempCanvas.getContext('2d');
-
-      // Draw shoe parts in order
-      function drawImageFromElement(img) {
-        if (img.src) {
-          const style = window.getComputedStyle(img);
-          let left = parseFloat(img.style.left) || 0;
-          let top = parseFloat(img.style.top) || 0;
-          tempCtx.filter = style.filter || 'none';
-          tempCtx.globalAlpha = img.style.opacity || 1;
-          tempCtx.drawImage(img, left, top, img.clientWidth, img.clientHeight);
-          tempCtx.filter = 'none';
-          tempCtx.globalAlpha = 1;
-        }
-      }
-
-      // Because some are positioned absolutely, draw accordingly
-      drawImageFromElement(baseShoe);
-      drawImageFromElement(sole);
-      drawImageFromElement(laces);
-      if (patternLayer.src) drawImageFromElement(patternLayer);
-      if (logo.src && logo.style.display !== 'none') drawImageFromElement(logo);
-
-      // Save image
+    // Save canvas as PNG
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.download = 'shoe-design.png';
-      link.href = tempCanvas.toDataURL();
+      link.href = url;
       link.click();
+      URL.revokeObjectURL(url);
     });
+  });
 
-    // Initialize everything
-    updateShoeParts();
-  </script>
+  // Init
+  setShoeImages();
+</script>
+
 </body>
 </html>
