@@ -2,172 +2,179 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Design Your Own Shoe</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Realistic Shoe Designer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f2f2f2;
       margin: 0;
       padding: 20px;
-      background: #f0f2f5;
       text-align: center;
     }
+
     h1 {
       margin-bottom: 20px;
     }
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 40px;
-    }
-    .controls, .preview {
+
+    #controls {
       background: white;
-      border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    .controls {
-      max-width: 300px;
-    }
+
     label {
       display: block;
-      margin: 15px 0 5px;
+      margin: 10px 0 5px;
       font-weight: bold;
     }
-    select, input[type=color] {
+
+    select, input[type="color"], input[type="file"] {
+      padding: 5px;
       width: 100%;
-      padding: 8px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      margin-bottom: 10px;
     }
-    svg {
-      width: 100%;
-      max-width: 400px;
+
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+      cursor: grab;
+      background: white;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: #4a90e2;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #357bd8;
     }
   </style>
 </head>
 <body>
 
-<h1>Design Your Own Shoe</h1>
+<h1>Realistic Shoe Designer</h1>
 
-<div class="container">
-  <div class="controls">
-    <label for="shoeType">Shoe Type</label>
-    <select id="shoeType">
-      <option value="sneakers">Sneakers</option>
-      <option value="athletic">Athletic Shoes</option>
-      <option value="cleats">Cleats</option>
-    </select>
+<div id="controls">
+  <label for="colorPicker">Shoe Color</label>
+  <input type="color" id="colorPicker" value="#ffffff">
 
-    <label for="brand">Brand Logo</label>
-    <select id="brand">
-      <option value="none">None</option>
-      <option value="nike">Nike</option>
-      <option value="adidas">Adidas</option>
-      <option value="puma">Puma</option>
-    </select>
+  <label for="patternSelect">Pattern</label>
+  <select id="patternSelect">
+    <option value="none">None</option>
+    <option value="camouflage">Camouflage</option>
+    <option value="stripes">Stripes</option>
+    <option value="gradient">Gradient</option>
+    <option value="flames">Flames</option>
+  </select>
 
-    <label for="shoeColor">Shoe Color</label>
-    <input type="color" id="shoeColor" value="#4a90e2" />
+  <label for="logoUpload">Upload Logo (PNG)</label>
+  <input type="file" id="logoUpload" accept="image/png">
 
-    <label for="logoColor">Logo Color</label>
-    <input type="color" id="logoColor" value="#ffffff" />
-  </div>
-
-  <div class="preview">
-    <svg viewBox="0 0 400 250">
-      <!-- Sneakers -->
-      <g id="sneakersGroup">
-        <rect x="80" y="100" width="240" height="80" rx="40" fill="#4a90e2" id="sneakersBody"/>
-        <path id="sneakersLogo" d="" fill="#fff"/>
-      </g>
-
-      <!-- Athletic Shoes -->
-      <g id="athleticGroup" style="display:none">
-        <ellipse cx="200" cy="140" rx="120" ry="50" fill="#4a90e2" id="athleticBody"/>
-        <path id="athleticLogo" d="" fill="#fff"/>
-      </g>
-
-      <!-- Cleats -->
-      <g id="cleatsGroup" style="display:none">
-        <rect x="80" y="100" width="240" height="80" rx="40" fill="#4a90e2" id="cleatsBody"/>
-        <!-- Studs -->
-        <circle cx="120" cy="190" r="7" fill="#222" />
-        <circle cx="160" cy="190" r="7" fill="#222" />
-        <circle cx="200" cy="190" r="7" fill="#222" />
-        <circle cx="240" cy="190" r="7" fill="#222" />
-        <circle cx="280" cy="190" r="7" fill="#222" />
-        <path id="cleatsLogo" d="" fill="#fff"/>
-      </g>
-    </svg>
-  </div>
+  <button onclick="downloadCanvas()">Download Design</button>
 </div>
 
+<br>
+
+<canvas id="shoeCanvas" width="600" height="400"></canvas>
+
 <script>
-const shoeType = document.getElementById('shoeType');
-const brand = document.getElementById('brand');
-const shoeColor = document.getElementById('shoeColor');
-const logoColor = document.getElementById('logoColor');
+const canvas = document.getElementById("shoeCanvas");
+const ctx = canvas.getContext("2d");
 
-// Shoe groups
-const sneakersGroup = document.getElementById('sneakersGroup');
-const athleticGroup = document.getElementById('athleticGroup');
-const cleatsGroup = document.getElementById('cleatsGroup');
+let shoeImage = new Image();
+let patternImage = new Image();
+let logoImage = null;
+let shoeColor = "#ffffff";
+let selectedPattern = "none";
 
-// Shoe bodies
-const sneakersBody = document.getElementById('sneakersBody');
-const athleticBody = document.getElementById('athleticBody');
-const cleatsBody = document.getElementById('cleatsBody');
+// Load base white shoe image (hosted)
+shoeImage.crossOrigin = "anonymous";
+shoeImage.src = "https://i.ibb.co/KwSZPZ3/white-sneaker.png"; // realistic white sneaker (side)
 
-// Logos
-const sneakersLogo = document.getElementById('sneakersLogo');
-const athleticLogo = document.getElementById('athleticLogo');
-const cleatsLogo = document.getElementById('cleatsLogo');
-
-// Logo paths
-const logos = {
-  none: '',
-  nike: 'M180 130 Q190 110 210 100 Q220 140 180 160 Q160 150 180 130 Z',
-  adidas: 'M170 130 L180 100 L190 130 L200 100 L210 130 L220 100 L230 130 Z',
-  puma: 'M180 115 Q190 95 200 105 Q210 115 205 135 Q195 145 180 130 Z'
+shoeImage.onload = () => {
+  drawShoe();
 };
 
-function updatePreview() {
-  const type = shoeType.value;
-  const logo = brand.value;
-  const shoeFill = shoeColor.value;
-  const logoFill = logoColor.value;
-  const path = logos[logo];
+document.getElementById("colorPicker").addEventListener("input", e => {
+  shoeColor = e.target.value;
+  drawShoe();
+});
 
-  // Show correct shoe
-  sneakersGroup.style.display = (type === 'sneakers') ? 'inline' : 'none';
-  athleticGroup.style.display = (type === 'athletic') ? 'inline' : 'none';
-  cleatsGroup.style.display   = (type === 'cleats') ? 'inline'   : 'none';
+document.getElementById("patternSelect").addEventListener("change", e => {
+  selectedPattern = e.target.value;
+  if (selectedPattern === "none") {
+    patternImage = null;
+    drawShoe();
+  } else {
+    patternImage = new Image();
+    patternImage.crossOrigin = "anonymous";
+    patternImage.onload = () => drawShoe();
+    if (selectedPattern === "camouflage") {
+      patternImage.src = "https://i.ibb.co/d6rhpcT/camo.png";
+    } else if (selectedPattern === "stripes") {
+      patternImage.src = "https://i.ibb.co/QHMdswY/stripes.png";
+    } else if (selectedPattern === "gradient") {
+      patternImage.src = "https://i.ibb.co/qkjM2v9/gradient.png";
+    } else if (selectedPattern === "flames") {
+      patternImage.src = "https://i.ibb.co/XbfK98W/flames.png";
+    }
+  }
+});
 
-  // Update color
-  sneakersBody.setAttribute('fill', shoeFill);
-  athleticBody.setAttribute('fill', shoeFill);
-  cleatsBody.setAttribute('fill', shoeFill);
+document.getElementById("logoUpload").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    logoImage = new Image();
+    logoImage.onload = () => drawShoe();
+    logoImage.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
 
-  // Set logo
-  sneakersLogo.setAttribute('d', path);
-  athleticLogo.setAttribute('d', path);
-  cleatsLogo.setAttribute('d', path);
+function drawShoe() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  sneakersLogo.setAttribute('fill', logoFill);
-  athleticLogo.setAttribute('fill', logoFill);
-  cleatsLogo.setAttribute('fill', logoFill);
+  // Draw base shoe in white
+  ctx.drawImage(shoeImage, 0, 0, canvas.width, canvas.height);
+
+  // Overlay shoe color
+  ctx.fillStyle = shoeColor;
+  ctx.globalAlpha = 0.4;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.globalAlpha = 1.0;
+
+  // Overlay pattern
+  if (patternImage && patternImage.complete) {
+    ctx.globalAlpha = 0.3;
+    ctx.drawImage(patternImage, 0, 0, canvas.width, canvas.height);
+    ctx.globalAlpha = 1.0;
+  }
+
+  // Logo on the side
+  if (logoImage && logoImage.complete) {
+    const logoW = 100;
+    const logoH = 50;
+    ctx.drawImage(logoImage, 350, 150, logoW, logoH);
+  }
 }
 
-// Events
-shoeType.addEventListener('change', updatePreview);
-brand.addEventListener('change', updatePreview);
-shoeColor.addEventListener('input', updatePreview);
-logoColor.addEventListener('input', updatePreview);
-
-// Initial render
-updatePreview();
+function downloadCanvas() {
+  const link = document.createElement("a");
+  link.download = "my-shoe-design.png";
+  link.href = canvas.toDataURL();
+  link.click();
+}
 </script>
 
 </body>
