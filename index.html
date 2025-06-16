@@ -1,179 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Chat - Dark Mode</title>
-  <style>
-    /* Reset and base */
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      background-color: #121212;
-      color: #e6e6e6;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    #chat {
-      width: 100%;
-      max-width: 720px;
-      height: 90vh;
-      background: #1e1e1e;
-      display: flex;
-      flex-direction: column;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.7);
-    }
-    #messages {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 20px;
-      scrollbar-width: thin;
-      scrollbar-color: #444 transparent;
-    }
-    #messages::-webkit-scrollbar {
-      width: 8px;
-    }
-    #messages::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    #messages::-webkit-scrollbar-thumb {
-      background-color: #444;
-      border-radius: 4px;
-    }
-    .message {
-      max-width: 75%;
-      margin-bottom: 16px;
-      padding: 14px 18px;
-      border-radius: 12px;
-      line-height: 1.5;
-      font-size: 16px;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-    }
-    .user {
-      background-color: #0b5cff;
-      color: white;
-      margin-left: auto;
-      border-bottom-right-radius: 4px;
-      border-bottom-left-radius: 12px;
-    }
-    .bot {
-      background-color: #333;
-      color: #ddd;
-      margin-right: auto;
-      border-bottom-left-radius: 4px;
-      border-bottom-right-radius: 12px;
-      font-family: 'Courier New', Courier, monospace;
-    }
-    #inputArea {
-      padding: 12px 20px;
-      background-color: #282828;
-      display: flex;
-      gap: 12px;
-      border-bottom-left-radius: 8px;
-      border-bottom-right-radius: 8px;
-    }
-    #userInput {
-      flex-grow: 1;
-      padding: 14px 18px;
-      font-size: 16px;
-      border: none;
-      border-radius: 12px;
-      background-color: #121212;
-      color: #e6e6e6;
-      outline: none;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    }
-    #userInput::placeholder {
-      color: #888;
-    }
-    #sendBtn {
-      background-color: #0b5cff;
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-weight: bold;
-      font-size: 16px;
-      padding: 14px 24px;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-      user-select: none;
-    }
-    #sendBtn:disabled {
-      background-color: #555;
-      cursor: default;
-    }
-    #sendBtn:hover:not(:disabled) {
-      background-color: #004fcf;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Advanced Realistic First-Person Car Game</title>
+<style>
+  html,body { margin: 0; height: 100%; overflow: hidden; background: #222; }
+  #info {
+    position: absolute; top: 10px; left: 10px; color: white;
+    font-family: monospace; z-index: 10;
+    background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px;
+  }
+</style>
 </head>
 <body>
-  <div id="chat" role="main" aria-label="AI chat interface">
-    <div id="messages" aria-live="polite" aria-relevant="additions"></div>
-    <form id="inputArea" aria-label="Send message form">
-      <input id="userInput" type="text" placeholder="Type your message..." autocomplete="off" aria-label="Message input" required />
-      <button id="sendBtn" type="submit">Send</button>
-    </form>
-  </div>
+<div id="info">Click screen to start, WASD to drive, Mouse to look around</div>
 
-  <script>
-    const messagesDiv = document.getElementById('messages');
-    const input = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const inputForm = document.getElementById('inputArea');
+<script src="https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.157.0/examples/js/controls/PointerLockControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ammo.js"></script>
 
-    const HF_API = "https://api-inference.huggingface.co/models/gpt2";
+<script>
+// Wait for Ammo.js to initialize
+Ammo().then(start);
 
-    async function queryAI(prompt) {
-      try {
-        const response = await fetch(HF_API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ inputs: prompt })
-        });
-        const data = await response.json();
-        if (data && data[0] && data[0].generated_text) {
-          return data[0].generated_text.trim();
-        } else if (data.error) {
-          return "Error: " + data.error;
-        } else {
-          return "Sorry, I couldn't generate a response.";
-        }
-      } catch (e) {
-        return "Error contacting AI.";
+function start() {
+  // --- THREE.JS SETUP ---
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x88aaff);
+
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+  const renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // LIGHTS
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  dirLight.position.set(10,20,10);
+  scene.add(dirLight);
+
+  const ambientLight = new THREE.AmbientLight(0x404040, 1.2);
+  scene.add(ambientLight);
+
+  // POINTER LOCK CONTROLS for first person camera
+  const controls = new THREE.PointerLockControls(camera, document.body);
+  document.body.addEventListener('click', () => controls.lock());
+  controls.getObject().position.set(0,2,0);
+  scene.add(controls.getObject());
+
+  // --- AMMO.JS PHYSICS SETUP ---
+  const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+  const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+  const broadphase = new Ammo.btDbvtBroadphase();
+  const solver = new Ammo.btSequentialImpulseConstraintSolver();
+  const physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+  physicsWorld.setGravity(new Ammo.btVector3(0, -9.82, 0));
+
+  // Utility: Keep track of physics bodies to sync graphics
+  const rigidBodies = [];
+  const tmpTrans = new Ammo.btTransform();
+
+  // --- CREATE GROUND ---
+  const groundSize = 200;
+  const groundGeometry = new THREE.BoxGeometry(groundSize, 1, groundSize);
+  const groundMaterial = new THREE.MeshStandardMaterial({color: 0x228822});
+  const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+  groundMesh.position.set(0, -0.5, 0);
+  scene.add(groundMesh);
+
+  // Ammo ground body
+  let groundShape = new Ammo.btBoxShape(new Ammo.btVector3(groundSize/2, 0.5, groundSize/2));
+  let groundTransform = new Ammo.btTransform();
+  groundTransform.setIdentity();
+  groundTransform.setOrigin(new Ammo.btVector3(0, -0.5, 0));
+  let groundMotionState = new Ammo.btDefaultMotionState(groundTransform);
+  let groundMass = 0;
+  let groundInertia = new Ammo.btVector3(0,0,0);
+  let groundInfo = new Ammo.btRigidBodyConstructionInfo(groundMass, groundMotionState, groundShape, groundInertia);
+  let groundBody = new Ammo.btRigidBody(groundInfo);
+  physicsWorld.addRigidBody(groundBody);
+
+  // --- CAR SETUP ---
+  const chassisWidth = 2;
+  const chassisHeight = 0.6;
+  const chassisLength = 4;
+
+  // Visual chassis mesh
+  const chassisMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(chassisWidth, chassisHeight, chassisLength),
+    new THREE.MeshStandardMaterial({color:0x4444ff})
+  );
+  scene.add(chassisMesh);
+
+  // Ammo chassis shape
+  const chassisShape = new Ammo.btBoxShape(new Ammo.btVector3(chassisWidth/2, chassisHeight/2, chassisLength/2));
+
+  // Ammo chassis rigid body
+  let chassisTransform = new Ammo.btTransform();
+  chassisTransform.setIdentity();
+  chassisTransform.setOrigin(new Ammo.btVector3(0, 5, 0));
+  let chassisMotionState = new Ammo.btDefaultMotionState(chassisTransform);
+  let chassisMass = 800;
+  let chassisInertia = new Ammo.btVector3(0,0,0);
+  chassisShape.calculateLocalInertia(chassisMass, chassisInertia);
+  let chassisInfo = new Ammo.btRigidBodyConstructionInfo(chassisMass, chassisMotionState, chassisShape, chassisInertia);
+  let chassisBody = new Ammo.btRigidBody(chassisInfo);
+  physicsWorld.addRigidBody(chassisBody);
+
+  chassisBody.setActivationState(4); // Disable deactivation
+
+  rigidBodies.push(chassisMesh);
+  chassisMesh.userData.physicsBody = chassisBody;
+
+  // --- WHEELS SETUP ---
+  const wheelRadius = 0.4;
+  const wheelWidth = 0.3;
+
+  // Positions relative to chassis center
+  const wheelPositions = [
+    new THREE.Vector3(-chassisWidth/2, -chassisHeight/2, chassisLength/2 - wheelRadius),  // Front Left
+    new THREE.Vector3(chassisWidth/2, -chassisHeight/2, chassisLength/2 - wheelRadius),   // Front Right
+    new THREE.Vector3(-chassisWidth/2, -chassisHeight/2, -chassisLength/2 + wheelRadius), // Rear Left
+    new THREE.Vector3(chassisWidth/2, -chassisHeight/2, -chassisLength/2 + wheelRadius)   // Rear Right
+  ];
+
+  let wheelMeshes = [];
+  let wheelBodies = [];
+
+  for(let i=0; i<4; i++){
+    // Visual wheel mesh
+    let wheelMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelWidth, 24),
+      new THREE.MeshStandardMaterial({color:0x222222})
+    );
+    wheelMesh.rotation.z = Math.PI/2;
+    scene.add(wheelMesh);
+
+    // Ammo wheel shape
+    let wheelShape = new Ammo.btCylinderShapeX(new Ammo.btVector3(wheelWidth/2, wheelRadius, wheelRadius));
+
+    let wheelTransform = new Ammo.btTransform();
+    wheelTransform.setIdentity();
+
+    // Start position is chassis pos + offset
+    wheelTransform.setOrigin(new Ammo.btVector3(
+      wheelPositions[i].x,
+      5 + wheelPositions[i].y,
+      wheelPositions[i].z
+    ));
+
+    let wheelMotionState = new Ammo.btDefaultMotionState(wheelTransform);
+    let wheelMass = 50;
+    let wheelInertia = new Ammo.btVector3(0,0,0);
+    wheelShape.calculateLocalInertia(wheelMass, wheelInertia);
+    let wheelBodyInfo = new Ammo.btRigidBodyConstructionInfo(wheelMass, wheelMotionState, wheelShape, wheelInertia);
+    let wheelBody = new Ammo.btRigidBody(wheelBodyInfo);
+    physicsWorld.addRigidBody(wheelBody);
+
+    wheelMeshes.push(wheelMesh);
+    wheelBodies.push(wheelBody);
+
+    rigidBodies.push(wheelMesh);
+    wheelMesh.userData.physicsBody = wheelBody;
+  }
+
+  // --- Constraints for wheels (simplified suspension) ---
+  let wheelJoints = [];
+  for(let i=0; i<4; i++){
+    let chassisPivot = new Ammo.btVector3(wheelPositions[i].x, wheelPositions[i].y, wheelPositions[i].z);
+    let wheelPivot = new Ammo.btVector3(0, 0, 0);
+    let axis = new Ammo.btVector3(0, 1, 0);
+
+    let joint = new Ammo.btHingeConstraint(
+      chassisBody,
+      wheelBodies[i],
+      chassisPivot,
+      wheelPivot,
+      axis,
+      axis,
+      true
+    );
+
+    physicsWorld.addConstraint(joint, true);
+    wheelJoints.push(joint);
+  }
+
+  // --- INPUT & DRIVING LOGIC ---
+  let moveForward = false, moveBackward = false, turnLeft = false, turnRight = false;
+
+  document.addEventListener('keydown', e => {
+    if(e.code === 'KeyW') moveForward = true;
+    if(e.code === 'KeyS') moveBackward = true;
+    if(e.code === 'KeyA') turnLeft = true;
+    if(e.code === 'KeyD') turnRight = true;
+  });
+
+  document.addEventListener('keyup', e => {
+    if(e.code === 'KeyW') moveForward = false;
+    if(e.code === 'KeyS') moveBackward = false;
+    if(e.code === 'KeyA') turnLeft = false;
+    if(e.code === 'KeyD') turnRight = false;
+  });
+
+  // Driving parameters
+  const engineForce = 3000;
+  const maxSteerVal = 0.5;
+
+  // --- AUDIO SETUP (exhaust) ---
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioContext();
+
+  const osc = audioCtx.createOscillator();
+  osc.type = 'sawtooth';
+
+  const gainNode = audioCtx.createGain();
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+
+  osc.connect(gainNode).connect(audioCtx.destination);
+  osc.start();
+
+  // RPM and sound control
+  let rpm = 0;
+
+  // --- CAMERA ---
+  controls.getObject().position.set(0,1.5,0);
+
+  // Sync physics and graphics
+  function syncPhysics() {
+    for(let i=0; i<rigidBodies.length; i++){
+      let objThree = rigidBodies[i];
+      let objAmmo = objThree.userData.physicsBody;
+      let ms = objAmmo.getMotionState();
+      if(ms){
+        ms.getWorldTransform(tmpTrans);
+        let p = tmpTrans.getOrigin();
+        let q = tmpTrans.getRotation();
+        objThree.position.set(p.x(), p.y(), p.z());
+        objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
       }
     }
+  }
 
-    function addMessage(text, sender) {
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message', sender);
-      msgDiv.textContent = text;
-      messagesDiv.appendChild(msgDiv);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
+  // Start pointer lock controls only after click
+  controls.addEventListener('lock', () => {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+  });
 
-    inputForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-      addMessage(text, 'user');
-      input.value = '';
-      sendBtn.disabled = true;
-      addMessage("...", 'bot');
+  // --- ANIMATION LOOP ---
+  let clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
 
-      const botMsgDiv = messagesDiv.querySelector('.bot:last-child');
-      const reply = await queryAI(text);
-      botMsgDiv.textContent = reply;
-      sendBtn.disabled = false;
-      input.focus();
-    });
-  </script>
+    let deltaTime = clock.getDelta();
+
+    // Control steering
+    let steer = 0;
+    if(turnLeft) steer = maxSteerVal;
+    if(turnRight) steer = -maxSteerVal;
+
+    // Apply torque for turning - simplified
+    let chassisAngVel = chassisBody.getAngularVelocity();
+    chassisBody.setAngularVelocity(new Ammo.btVector3(0, steer * 2, 0));
+
+    // Apply engine force
+    let force = 0;
+    if(moveForward) force = engineForce;
+    else if(moveBackward) force = -engineForce / 2;
+
+    // Apply central force to chassis forward direction
+    let forwardVec = chassisBody.getWorldTransform().getBasis().getColumn(2);
+    let forceVec = new Ammo.btVector3(-forwardVec.x() * force, 0, -forwardVec.z() * force);
+    chassisBody.applyCentralForce(forceVec);
+
+    // Update RPM estimate by force magnitude (simplified)
+    rpm = Math.min(8000, Math.abs(force) * 0.02);
+
+    // Update exhaust sound frequency and volume
+    osc.frequency.setValueAtTime(200 + rpm * 0.5, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.3 + rpm * 0.0001, audioCtx.currentTime);
+
+    // Step physics simulation
+    physicsWorld.stepSimulation(deltaTime, 10);
+
+    // Sync graphics with physics
+    syncPhysics();
+
+    // Update camera position to chassis + offset
+    let chassisPos = chassisMesh.position;
+    let chassisQuat = chassisMesh.quaternion;
+    let camOffset = new THREE.Vector3(0, 1.5, 0.5);
+    camOffset.applyQuaternion(chassisQuat);
+    controls.getObject().position.copy(chassisPos).add(camOffset);
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  // Resize
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+</script>
 </body>
 </html>
