@@ -120,7 +120,6 @@
   const form = document.getElementById("post-form");
   const postContent = document.getElementById("post-content");
 
-  // Load posts from localStorage or start empty
   let posts = JSON.parse(localStorage.getItem("forumPosts") || "[]");
 
   function savePosts() {
