@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Forum</title>
+  <style>
+    body { margin: 0; background: #000; color: #fff; font-family: Arial; padding: 20px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .logout { background: red; color: #fff; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+    form { display: flex; flex-direction: column; margin-bottom: 20px; }
+    textarea { background: #111; color: #fff; border: none; padding: 10px; border-radius: 5px; margin-bottom: 10px; resize: none; }
+    button { background: #0f0; color: #000; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    .post { background: #111; padding: 15px; border-radius: 8px; margin-bottom: 10px; position: relative; }
+    .post .delete { position: absolute; top: 10px; right: 10px; background: crimson; color: white; border: none; border-radius: 5px; padding: 5px; cursor: pointer; }
+    .post .author { font-weight: bold; }
+    .post .time { font-size: 12px; opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2 id="welcome">Welcome</h2>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+
+  <form id="postForm">
+    <textarea id="postInput" rows="3" placeholder="Write a post..."></textarea>
+    <button type="submit">Post</button>
+  </form>
+
+  <div id="posts"></div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!user) location.href = "login.html";
+    document.getElementById("welcome").textContent = "Welcome, " + user.username;
+
+    const postsDiv = document.getElementById("posts");
+    let posts = JSON.parse(localStorage.getItem("forumPosts") || "[]");
+
+    function savePosts() {
+      localStorage.setItem("forumPosts", JSON.stringify(posts));
+    }
+
+    function renderPosts() {
+      postsDiv.innerHTML = "";
+      posts.forEach((post, i) => {
+        const div = document.createElement("div");
+        div.className = "post";
+        div.innerHTML = `
+          <div class="author">${post.username}</div>
+          <div class="time">${new Date(post.time).toLocaleString()}</div>
+          <div>${post.content}</div>
+        `;
+        if (post.email === user.email) {
+          const delBtn = document.createElement("button");
+          delBtn.className = "delete";
+          delBtn.textContent = "Delete";
+          delBtn.onclick = () => {
+            posts.splice(i, 1);
+            savePosts();
+            renderPosts();
+          };
+          div.appendChild(delBtn);
+        }
+        postsDiv.appendChild(div);
+      });
+    }
+
+    document.getElementById("postForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const content = document.getElementById("postInput").value.trim();
+      if (!content) return;
+      posts.unshift({ username: user.username, email: user.email, content, time: Date.now() });
+      savePosts();
+      renderPosts();
+      document.getElementById("postInput").value = "";
+    });
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      location.href = "login.html";
+    }
+
+    renderPosts();
+  </script>
+</body>
+</html>
