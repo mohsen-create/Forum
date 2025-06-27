@@ -1,97 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Forum</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(120deg, #4e54c8, #8f94fb);
-      min-height: 100vh;
-      margin: 0;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    header {
-      width: 100%;
-      max-width: 800px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0,0,0,0.3);
-      padding: 10px 20px;
-      border-radius: 8px;
-    }
-    h1 {
-      margin: 0;
-    }
-    button.logout {
-      background: #ff4b4b;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button.logout:hover {
-      background: #d93636;
-    }
-    .forum-container {
-      width: 100%;
-      max-width: 800px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 12px;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-    form {
-      display: flex;
-      margin-bottom: 20px;
-    }
-    textarea {
-      flex-grow: 1;
-      resize: none;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-    button.post-btn {
-      background: #4e54c8;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      margin-left: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.3s;
-    }
-    button.post-btn:hover {
-      background: #3134a3;
-    }
-    .post {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      word-wrap: break-word;
-    }
-    .post .author {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .post .time {
-      font-size: 12px;
-      opacity: 0.7;
-      margin-bottom: 8px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Forum</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(120deg, #4e54c8, #8f94fb);
+    min-height: 100vh;
+    margin: 0;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  header {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    padding: 10px 20px;
+    border-radius: 8px;
+  }
+  h1 {
+    margin: 0;
+  }
+  button.logout {
+    background: #ff4b4b;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  button.logout:hover {
+    background: #d93636;
+  }
+  .forum-container {
+    width: 100%;
+    max-width: 800px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  form {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  textarea {
+    flex-grow: 1;
+    resize: none;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+  }
+  button.post-btn {
+    background: #4e54c8;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  button.post-btn:hover {
+    background: #3134a3;
+  }
+  .post {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    word-wrap: break-word;
+    position: relative;
+  }
+  .post .author {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .post .time {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+  .delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ff4b4b;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .delete-btn:hover {
+    background: #d93636;
+  }
+</style>
 </head>
 <body>
 
@@ -109,67 +125,85 @@
 </div>
 
 <script>
-  const username = localStorage.getItem("username");
-  if (!username) {
-    window.location.href = "index.html";
+  const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+  if (!loggedInUser) {
+    window.location.href = 'login.html';
   } else {
-    document.getElementById("welcome-message").textContent = `🎉 Welcome, ${username}!`;
+    document.getElementById('welcome-message').textContent = `🎉 Welcome, ${loggedInUser.username}!`;
   }
 
-  const postsDiv = document.getElementById("posts");
-  const form = document.getElementById("post-form");
-  const postContent = document.getElementById("post-content");
+  const postsDiv = document.getElementById('posts');
+  const form = document.getElementById('post-form');
+  const postContent = document.getElementById('post-content');
 
-  let posts = JSON.parse(localStorage.getItem("forumPosts") || "[]");
+  // Load posts (global for all users)
+  let posts = JSON.parse(localStorage.getItem('forumPosts') || '[]');
 
   function savePosts() {
-    localStorage.setItem("forumPosts", JSON.stringify(posts));
+    localStorage.setItem('forumPosts', JSON.stringify(posts));
   }
 
   function renderPosts() {
-    postsDiv.innerHTML = "";
-    posts.forEach(post => {
-      const postEl = document.createElement("div");
-      postEl.className = "post";
+    postsDiv.innerHTML = '';
+    posts.forEach((post, index) => {
+      const postEl = document.createElement('div');
+      postEl.className = 'post';
 
-      const authorEl = document.createElement("div");
-      authorEl.className = "author";
+      const authorEl = document.createElement('div');
+      authorEl.className = 'author';
       authorEl.textContent = post.author;
 
-      const timeEl = document.createElement("div");
-      timeEl.className = "time";
+      const timeEl = document.createElement('div');
+      timeEl.className = 'time';
       timeEl.textContent = new Date(post.time).toLocaleString();
 
-      const contentEl = document.createElement("div");
-      contentEl.className = "content";
+      const contentEl = document.createElement('div');
+      contentEl.className = 'content';
       contentEl.textContent = post.content;
 
       postEl.appendChild(authorEl);
       postEl.appendChild(timeEl);
       postEl.appendChild(contentEl);
+
+      // Add delete button if post belongs to logged-in user
+      if(post.email === loggedInUser.email) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = () => {
+          if(confirm('Delete this post?')) {
+            posts.splice(index, 1);
+            savePosts();
+            renderPosts();
+          }
+        };
+        postEl.appendChild(deleteBtn);
+      }
+
       postsDiv.appendChild(postEl);
     });
   }
 
-  form.addEventListener("submit", function(e) {
+  form.addEventListener('submit', e => {
     e.preventDefault();
     const content = postContent.value.trim();
     if (!content) return;
 
     posts.unshift({
-      author: username,
-      content: content,
+      author: loggedInUser.username,
+      email: loggedInUser.email,
+      content,
       time: Date.now()
     });
 
     savePosts();
     renderPosts();
-    postContent.value = "";
+    postContent.value = '';
   });
 
   function logout() {
-    localStorage.removeItem("username");
-    window.location.href = "index.html";
+    localStorage.removeItem('loggedInUser');
+    window.location.href = 'login.html';
   }
 
   renderPosts();
