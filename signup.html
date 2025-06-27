@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up</title>
+  <style>
+    body { margin: 0; background: #000; color: #fff; font-family: Arial; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    .container { background: #111; padding: 40px; border-radius: 10px; box-shadow: 0 0 20px #0f0; width: 100%; max-width: 400px; }
+    input, button { width: 100%; padding: 12px; margin-top: 15px; border: none; border-radius: 5px; font-size: 16px; }
+    input { background: #222; color: #fff; }
+    button { background: #0f0; color: #000; font-weight: bold; cursor: pointer; }
+    .message { margin-top: 15px; color: red; }
+    a { color: #0f0; display: block; text-align: center; margin-top: 10px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sign Up</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="signup()">Create Account</button>
+    <a href="login.html">Already have an account?</a>
+    <div class="message" id="msg"></div>
+  </div>
+  <script>
+    function signup() {
+      const username = document.getElementById("username").value.trim();
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value;
+      const msg = document.getElementById("msg");
+      if (!username || !email || !password) return msg.textContent = "Fill in all fields.";
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      if (users[email]) return msg.textContent = "Email already registered.";
+      users[email] = { username, password };
+      localStorage.setItem("users", JSON.stringify(users));
+      msg.style.color = "lightgreen";
+      msg.textContent = "Account created!";
+      setTimeout(() => location.href = "login.html", 1000);
+    }
+  </script>
+</body>
+</html>
