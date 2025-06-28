@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Forum Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="forum-container">
     <h1>Welcome, <span id="username"></span></h1>
 
+    <input type="text" id="search-input" placeholder="Search forums..." oninput="searchForums()" />
+
     <div class="form-section">
       <h2>Create a New Forum Group</h2>
-      <input type="text" id="forum-name" placeholder="Forum Name">
+      <input type="text" id="forum-name" placeholder="Forum Name" />
       <textarea id="forum-description" placeholder="Forum Description"></textarea>
       <button onclick="createForum()">Create Forum</button>
     </div>
