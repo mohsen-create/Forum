@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Sign Up</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="form-container">
     <h1>Sign Up</h1>
-    <input type="text" id="signup-user" placeholder="Username">
-    <input type="password" id="signup-pass" placeholder="Password">
+    <input type="text" id="signup-user" placeholder="Username" />
+    <input type="password" id="signup-pass" placeholder="Password" />
     <button onclick="signup()">Create Account</button>
     <p>Already have an account? <a href="index.html">Login</a></p>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    function signup() {
+      const user = document.getElementById('signup-user').value;
+      const pass = document.getElementById('signup-pass').value;
+      if (!user || !pass) return alert("Fill all fields!");
+      localStorage.setItem("user_" + user, pass);
+      localStorage.setItem("loggedInUser", user);
+      window.location.href = "dashboard.html";
+    }
+  </script>
 </body>
 </html>
