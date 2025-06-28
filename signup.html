@@ -13,16 +13,6 @@
     <button onclick="signup()">Create Account</button>
     <p>Already have an account? <a href="index.html">Login</a></p>
   </div>
-
-  <script>
-    function signup() {
-      const user = document.getElementById('signup-user').value;
-      const pass = document.getElementById('signup-pass').value;
-      if (!user || !pass) return alert("Fill all fields!");
-      localStorage.setItem("user_" + user, pass);
-      localStorage.setItem("loggedInUser", user);
-      window.location.href = "dashboard.html";
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
