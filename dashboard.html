@@ -1,29 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Forum Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Forum Groups</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="forum-container">
-    <h1>Welcome, <span id="username"></span></h1>
-
-    <input type="text" id="search-input" placeholder="Search forums..." oninput="searchForums()" />
-
-    <div class="form-section">
-      <h2>Create a New Forum Group</h2>
-      <input type="text" id="forum-name" placeholder="Forum Name" />
-      <textarea id="forum-description" placeholder="Forum Description"></textarea>
-      <button onclick="createForum()">Create Forum</button>
-    </div>
-
-    <div class="forum-list">
-      <h2>Available Forums</h2>
-      <div id="forums"></div>
-    </div>
+    <h1>Forum Groups</h1>
+    <input type="text" id="search-groups" placeholder="Search groups..." oninput="searchGroups()">
+    <input type="text" id="group-name" placeholder="Group name">
+    <button onclick="createGroup()">Create Group</button>
+    <div id="group-list"></div>
   </div>
-
   <script src="script.js"></script>
 </body>
 </html>
