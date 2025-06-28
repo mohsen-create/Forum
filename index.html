@@ -11,21 +11,8 @@
     <input type="text" id="login-user" placeholder="Username" />
     <input type="password" id="login-pass" placeholder="Password" />
     <button onclick="login()">Login</button>
-    <p>Don't have an account? <a href="signup.html">Sign up</a></p>
+    <p>No account? <a href="signup.html">Sign up</a></p>
   </div>
-
-  <script>
-    function login() {
-      const user = document.getElementById('login-user').value;
-      const pass = document.getElementById('login-pass').value;
-      const stored = localStorage.getItem("user_" + user);
-      if (stored === pass) {
-        localStorage.setItem("loggedInUser", user);
-        window.location.href = "dashboard.html";
-      } else {
-        alert("Invalid login.");
-      }
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
