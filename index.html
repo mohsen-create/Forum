@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Message Us</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #6a85f1, #a16ae8);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 2.2rem;
+    }
+
+    p {
+      font-size: 14px;
+      letter-spacing: 1px;
+      opacity: 0.8;
+      margin-bottom: 30px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 15px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      outline: none;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: linear-gradient(to right, #00c896, #00b185);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-size: 15px;
+      color: #a0ffe4;
+    }
+
+    .footer {
+      margin-top: 25px;
+      font-size: 12px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Message Us</h1>
+    <p>We’d love to hear from you. Your message stays safe in your browser.</p>
+    <form id="messageForm">
+      <input type="text" id="name" placeholder="Your Name" required />
+      <input type="email" id="email" placeholder="Your Email" required />
+      <textarea id="message" placeholder="Your Message" rows="5" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+    <div class="message" id="responseMsg"></div>
+    <div class="footer">🌟 Fully Offline · Data stored locally</div>
+  </div>
+
+  <script>
+    const form = document.getElementById('messageForm');
+    const responseMsg = document.getElementById('responseMsg');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+
+      if (name && email && message) {
+        // Save to LocalStorage
+        const messages = JSON.parse(localStorage.getItem('messages')) || [];
+        messages.push({
+          name,
+          email,
+          message,
+          time: new Date().toLocaleString()
+        });
+        localStorage.setItem('messages', JSON.stringify(messages));
+
+        // Clear form
+        form.reset();
+        responseMsg.textContent = "✅ Message sent and saved locally!";
+        setTimeout(() => responseMsg.textContent = "", 5000);
+      } else {
+        responseMsg.textContent = "⚠️ Please fill in all fields.";
+      }
+    });
+  </script>
+
+</body>
+</html>
