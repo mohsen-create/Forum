@@ -3,134 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Message Us</title>
+  <title>LoginToday</title>
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #6a85f1, #a16ae8);
-      color: white;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #4a90e2, #8e44ad);
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      color: white;
     }
 
-    .container {
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.3);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
+    .login-container {
+      background-color: rgba(0, 0, 0, 0.3);
       padding: 40px;
-      width: 100%;
-      max-width: 500px;
-      text-align: center;
+      border-radius: 15px;
+      width: 350px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
 
     h1 {
-      margin-bottom: 10px;
-      font-size: 2.2rem;
-    }
-
-    p {
-      font-size: 14px;
-      letter-spacing: 1px;
-      opacity: 0.8;
+      text-align: center;
+      font-size: 28px;
       margin-bottom: 30px;
+      letter-spacing: 1px;
     }
 
-    input, textarea {
-      width: 100%;
-      padding: 15px;
+    .input-group {
       margin-bottom: 20px;
-      border: none;
-      border-radius: 15px;
-      font-size: 16px;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      outline: none;
     }
 
-    input::placeholder, textarea::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    button {
+    .input-group input {
       width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      background: linear-gradient(to right, #00c896, #00b185);
-      color: white;
+      padding: 12px;
       border: none;
-      border-radius: 15px;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 16px;
+    }
+
+    .input-group input::placeholder {
+      color: #ccc;
+    }
+
+    .options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 20px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(to right, #4a90e2, #6f86d6);
+      color: white;
+      font-size: 16px;
       cursor: pointer;
-      transition: 0.3s ease;
+      transition: background 0.3s;
     }
 
-    button:hover {
-      opacity: 0.9;
+    .login-btn:hover {
+      background: linear-gradient(to right, #3d7adf, #5c71d6);
     }
 
-    .message {
+    .forgot-link {
+      text-align: center;
       margin-top: 15px;
-      font-size: 15px;
-      color: #a0ffe4;
+      font-size: 14px;
+      color: #bbb;
     }
 
-    .footer {
-      margin-top: 25px;
-      font-size: 12px;
-      opacity: 0.6;
+    .forgot-link a {
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    .forgot-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <h1>Message Us</h1>
-    <p>We’d love to hear from you. Your message stays safe in your browser.</p>
-    <form id="messageForm">
-      <input type="text" id="name" placeholder="Your Name" required />
-      <input type="email" id="email" placeholder="Your Email" required />
-      <textarea id="message" placeholder="Your Message" rows="5" required></textarea>
-      <button type="submit">Send Message</button>
+  <div class="login-container">
+    <h1>LOGINTODAY</h1>
+    <form>
+      <div class="input-group">
+        <input type="text" placeholder="Username" required />
+      </div>
+      <div class="input-group">
+        <input type="password" placeholder="Password" required />
+      </div>
+      <div class="options">
+        <label><input type="checkbox" /> Remember Me</label>
+        <span><a href="#" style="color: #ccc;">Forgot your</a></span>
+      </div>
+      <button class="login-btn" type="submit">Log In</button>
     </form>
-    <div class="message" id="responseMsg"></div>
-    <div class="footer">🌟 Fully Offline · Data stored locally</div>
+    <div class="forgot-link">
+      <p><a href="#">Forgot your password?</a></p>
+    </div>
   </div>
-
-  <script>
-    const form = document.getElementById('messageForm');
-    const responseMsg = document.getElementById('responseMsg');
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const message = document.getElementById('message').value.trim();
-
-      if (name && email && message) {
-        // Save to LocalStorage
-        const messages = JSON.parse(localStorage.getItem('messages')) || [];
-        messages.push({
-          name,
-          email,
-          message,
-          time: new Date().toLocaleString()
-        });
-        localStorage.setItem('messages', JSON.stringify(messages));
-
-        // Clear form
-        form.reset();
-        responseMsg.textContent = "✅ Message sent and saved locally!";
-        setTimeout(() => responseMsg.textContent = "", 5000);
-      } else {
-        responseMsg.textContent = "⚠️ Please fill in all fields.";
-      }
-    });
-  </script>
-
 </body>
 </html>
