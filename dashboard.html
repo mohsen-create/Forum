@@ -3,14 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LoginToday - Dashboard</title>
+  <title>Dashboard - LoginToday</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container dashboard">
-    <h1>Welcome to Your Dashboard</h1>
-    <p>You are successfully logged in.</p>
-    <a href="index.html" class="logout-btn">Log Out</a>
+  <div class="container">
+    <h1>Welcome to your Dashboard</h1>
+    <p>You are logged in.</p>
+    <button onclick="logout()">Log Out</button>
   </div>
+  <script>
+    if (!localStorage.getItem('loggedIn')) {
+      window.location.href = 'index.html';
+    }
+    function logout() {
+      localStorage.removeItem('loggedIn');
+      window.location.href = 'index.html';
+    }
+  </script>
 </body>
 </html>
