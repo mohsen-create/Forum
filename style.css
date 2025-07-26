@@ -2,95 +2,60 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #3e7bb1, #764ba2);
+  background: linear-gradient(to bottom right, #3b5998, #8b9dc3);
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
 }
 
 .container {
-  background-color: rgba(0, 0, 0, 0.4);
-  padding: 40px 30px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   border-radius: 15px;
+  padding: 40px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  text-align: center;
 }
 
-.title {
-  font-size: 32px;
-  margin-bottom: 25px;
-  letter-spacing: 1px;
+.container h1 {
+  margin-bottom: 20px;
 }
 
-.form input {
+input, button {
+  display: block;
   width: 100%;
+  margin: 10px 0;
   padding: 12px;
-  margin-bottom: 15px;
+  font-size: 1em;
   border: none;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 16px;
 }
 
-.form input::placeholder {
-  color: #ccc;
+input {
+  background-color: rgba(255,255,255,0.2);
+  color: white;
 }
 
-.form button {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(to right, #4a90e2, #6f86d6);
-  border: none;
-  border-radius: 8px;
+button {
+  background-color: #4e9af1;
   color: white;
-  font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s ease;
 }
 
-.form button:hover {
-  background: linear-gradient(to right, #357bd8, #5771c9);
+button:hover {
+  background-color: #357edd;
 }
 
-.form-options {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 10px 0 15px;
-  font-size: 13px;
-}
-
-.form-options a {
-  color: #ddd;
+a {
+  color: #cce4ff;
   text-decoration: none;
 }
 
-.bottom-link {
-  margin-top: 20px;
-  font-size: 14px;
-}
-
-.bottom-link a {
-  color: #fff;
+a:hover {
   text-decoration: underline;
-}
-
-.dashboard h1 {
-  font-size: 28px;
-  margin-bottom: 10px;
-}
-
-.logout-btn {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: crimson;
-  color: white;
-  text-decoration: none;
-  border-radius: 8px;
 }
