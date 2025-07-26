@@ -8,15 +8,14 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="title">Create Account</h1>
-    <form class="form" action="dashboard.html" method="GET">
-      <input type="text" placeholder="Username" required>
-      <input type="email" placeholder="Email" required>
-      <input type="password" placeholder="Password" required>
-      <input type="password" placeholder="Confirm Password" required>
+    <h1>Create Account</h1>
+    <form id="signupForm">
+      <input type="text" id="signupUser" placeholder="New Username" required />
+      <input type="password" id="signupPass" placeholder="New Password" required />
       <button type="submit">Sign Up</button>
-      <p class="bottom-link">Already have an account? <a href="index.html">Log In</a></p>
+      <p>Already have an account? <a href="index.html">Login</a></p>
     </form>
   </div>
+  <script src="script.js"></script>
 </body>
 </html>
